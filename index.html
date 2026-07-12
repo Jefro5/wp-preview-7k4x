@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- TESTING PHASE: remove the robots meta below when this goes live at 3dgaze.com -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='42' fill='%230B0F17'/><circle cx='50' cy='50' r='20' fill='%237CD6E6'/><circle cx='58' cy='42' r='6' fill='%23F0B77B'/></svg>">
+<title>3DGaze — Support &amp; FAQ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+  :root {
+    --bg: #0B0F17;
+    --bg-soft: #0E1420;
+    --panel: #121826;
+    --panel-edge: #1D2637;
+    --text: #EAF0F7;
+    --muted: #8A97AB;
+    --accent: #7CD6E6;
+    --accent-ink: #0B0F17;
+    --amber: #F0B77B;
+    --hero-glow-1: rgba(124, 214, 230, 0.14);
+    --hero-glow-2: rgba(240, 183, 123, 0.07);
+    --shadow: 0 12px 40px rgba(3, 6, 12, 0.5);
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #F3F6FA;
+      --bg-soft: #EAF0F7;
+      --panel: #FFFFFF;
+      --panel-edge: #D8E1EC;
+      --text: #17202E;
+      --muted: #5A6A80;
+      --accent: #147A92;
+      --accent-ink: #FFFFFF;
+      --amber: #B26A14;
+      --hero-glow-1: rgba(20, 122, 146, 0.10);
+      --hero-glow-2: rgba(178, 106, 20, 0.08);
+      --shadow: 0 10px 30px rgba(23, 32, 46, 0.10);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0B0F17; --bg-soft: #0E1420; --panel: #121826; --panel-edge: #1D2637;
+    --text: #EAF0F7; --muted: #8A97AB; --accent: #7CD6E6; --accent-ink: #0B0F17;
+    --amber: #F0B77B;
+    --hero-glow-1: rgba(124,214,230,.14); --hero-glow-2: rgba(240,183,123,.07);
+    --shadow: 0 12px 40px rgba(3,6,12,.5);
+  }
+  :root[data-theme="light"] {
+    --bg: #F3F6FA; --bg-soft: #EAF0F7; --panel: #FFFFFF; --panel-edge: #D8E1EC;
+    --text: #17202E; --muted: #5A6A80; --accent: #147A92; --accent-ink: #FFFFFF;
+    --amber: #B26A14;
+    --hero-glow-1: rgba(20,122,146,.10); --hero-glow-2: rgba(178,106,20,.08);
+    --shadow: 0 10px 30px rgba(23,32,46,.10);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .display { font-family: "Avenir Next", "Segoe UI Variable Display", Futura, "Century Gothic", "Segoe UI", sans-serif; }
+
+  /* ---------- nav ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px clamp(18px, 5vw, 48px);
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--panel-edge);
+  }
+  .wordmark {
+    font-family: "Avenir Next", "Segoe UI Variable Display", Futura, "Century Gothic", "Segoe UI", sans-serif;
+    font-weight: 700; font-size: 1.05rem; letter-spacing: 0.34em;
+    color: var(--text); text-decoration: none; white-space: nowrap;
+  }
+  .wordmark b { color: var(--accent); font-weight: 700; }
+  .wordmark i { font-style: normal; color: var(--amber); }
+  nav .links { display: flex; gap: clamp(14px, 3vw, 30px); }
+  nav .links a {
+    color: var(--muted); text-decoration: none; font-size: 0.82rem;
+    text-transform: uppercase; letter-spacing: 0.14em;
+  }
+  nav .links a:hover, nav .links a:focus-visible { color: var(--accent); }
+
+  /* ---------- hero ---------- */
+  header {
+    position: relative; overflow: hidden;
+    padding: clamp(72px, 12vw, 130px) clamp(18px, 5vw, 48px) clamp(56px, 9vw, 100px);
+    background:
+      radial-gradient(1100px 480px at 78% -10%, var(--hero-glow-1), transparent 60%),
+      radial-gradient(700px 380px at 12% 110%, var(--hero-glow-2), transparent 65%),
+      var(--bg);
+  }
+  #stars { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .hero-inner { position: relative; max-width: 860px; margin: 0 auto; }
+  .eyebrow {
+    color: var(--accent); font-size: 0.78rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.28em; margin: 0 0 18px;
+  }
+  h1 {
+    margin: 0 0 20px; font-weight: 700;
+    font-size: clamp(2rem, 5.6vw, 3.4rem);
+    line-height: 1.12; letter-spacing: -0.015em; text-wrap: balance;
+  }
+  .hero-sub { color: var(--muted); font-size: 1.06rem; max-width: 34em; margin: 0 0 34px; }
+  .btn-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 13px 26px; border-radius: 999px;
+    font-size: 0.92rem; font-weight: 600; text-decoration: none;
+    letter-spacing: 0.02em; transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+  .btn:hover, .btn:focus-visible { transform: translateY(-1px); }
+  .btn-solid { background: var(--accent); color: var(--accent-ink); }
+  .btn-ghost { color: var(--text); border: 1px solid var(--panel-edge); background: color-mix(in srgb, var(--panel) 55%, transparent); }
+
+  /* ---------- sections ---------- */
+  main { max-width: 860px; margin: 0 auto; padding: 0 clamp(18px, 5vw, 48px) 40px; }
+  section { padding-top: clamp(56px, 9vw, 90px); }
+  .kicker {
+    color: var(--accent); font-size: 0.75rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.26em; margin: 0 0 10px;
+  }
+  h2 {
+    margin: 0 0 28px; font-weight: 700;
+    font-size: clamp(1.45rem, 3.4vw, 2rem); letter-spacing: -0.01em; text-wrap: balance;
+  }
+  p { max-width: 62ch; }
+
+  /* ---------- FAQ accordion ---------- */
+  .faq { display: flex; flex-direction: column; gap: 12px; }
+  details {
+    background: var(--panel); border: 1px solid var(--panel-edge);
+    border-radius: 16px; box-shadow: var(--shadow);
+  }
+  summary {
+    list-style: none; cursor: pointer;
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+    padding: 18px 22px; font-weight: 600; font-size: 1.02rem;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after {
+    content: "+"; color: var(--accent); font-weight: 400; font-size: 1.35rem;
+    line-height: 1; flex: none; transition: transform 0.18s ease;
+  }
+  details[open] summary::after { content: "–"; }
+  summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 16px; }
+  details .a { padding: 0 22px 20px; color: var(--muted); }
+  details .a p { margin: 0 0 12px; }
+  details .a p:last-child { margin-bottom: 0; }
+  details .a b, details .a strong { color: var(--text); font-weight: 600; }
+  .path { color: var(--text); font-weight: 600; white-space: nowrap; }
+
+  /* ---------- support ---------- */
+  .support-card {
+    background: linear-gradient(140deg, color-mix(in srgb, var(--accent) 9%, var(--panel)), var(--panel) 55%);
+    border: 1px solid var(--panel-edge); border-radius: 20px;
+    box-shadow: var(--shadow);
+    padding: clamp(26px, 5vw, 44px);
+  }
+  .support-card h2 { margin-bottom: 12px; }
+  .support-card p { color: var(--muted); margin: 0 0 10px; }
+  .support-card .btn-row { margin-top: 26px; }
+  .tip {
+    margin-top: 26px; padding: 14px 18px; border-radius: 12px;
+    background: color-mix(in srgb, var(--amber) 9%, var(--panel));
+    border: 1px solid color-mix(in srgb, var(--amber) 30%, var(--panel-edge));
+    color: var(--muted); font-size: 0.92rem;
+  }
+  .tip b { color: var(--text); }
+
+  /* ---------- privacy + footer ---------- */
+  .privacy-note { color: var(--muted); }
+  .privacy-note a { color: var(--accent); }
+  footer {
+    margin-top: clamp(60px, 9vw, 90px);
+    border-top: 1px solid var(--panel-edge);
+    background: var(--bg-soft);
+    padding: 34px clamp(18px, 5vw, 48px) 44px;
+  }
+  .foot-inner {
+    max-width: 860px; margin: 0 auto;
+    display: flex; flex-wrap: wrap; gap: 18px 36px;
+    justify-content: space-between; align-items: baseline;
+    color: var(--muted); font-size: 0.85rem;
+  }
+  .foot-inner a { color: var(--muted); }
+  .foot-inner a:hover { color: var(--accent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .btn, summary::after { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="wordmark" href="#top"><b>3D</b>GAZE<i>.</i></a>
+  <div class="links">
+    <a href="#faq">FAQ</a>
+    <a href="#support">Support</a>
+    <a href="#privacy">Privacy</a>
+  </div>
+</nav>
+
+<header id="top">
+  <canvas id="stars" aria-hidden="true"></canvas>
+  <div class="hero-inner">
+    <p class="eyebrow display">Living wallpapers for Android</p>
+    <h1 class="display">Wallpapers that live on your&nbsp;home&nbsp;screen.</h1>
+    <p class="hero-sub">Real weather. Real sunrise and sunset. Scenes that breathe while your phone
+      rests. This is the help hub for all 3DGaze apps.</p>
+    <div class="btn-row">
+      <a class="btn btn-solid" href="#faq">Browse the FAQ</a>
+      <a class="btn btn-ghost" href="mailto:support@3dgaze.com">Email support</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="faq">
+    <p class="kicker display">Answers</p>
+    <h2 class="display">Frequently asked questions</h2>
+    <div class="faq">
+
+      <details open>
+        <summary>How do I set the live wallpaper?</summary>
+        <div class="a">
+          <p>Tap the app's icon — it opens a wallpaper preview right away. On the preview screen, tap
+          <b>Set&nbsp;wallpaper</b> and choose <b>Home screen</b> (or Home and lock screen). That's it —
+          the app then opens its Settings so you can start customizing.</p>
+          <p>You can also get there the Android way: long-press an empty spot on your home screen →
+          <span class="path">Wallpaper &amp; style</span> → find the app under live wallpapers.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Will a live wallpaper drain my battery?</summary>
+        <div class="a">
+          <p>Far less than you'd expect. The wallpaper only renders while it's actually visible — the
+          moment you open an app or the screen turns off, it stops doing work entirely.</p>
+          <p>If you want to trim it further, the <span class="path">PERFORMANCE</span> tab in the
+          wallpaper's settings lets you lower the visual quality and frame rate.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>How does the weather work? Do you track my location?</summary>
+        <div class="a">
+          <p>No tracking, and no Android location permission — the app never asks for one. Live weather
+          is <b>off by default</b> and entirely opt-in.</p>
+          <p>If you turn it on, the app estimates your approximate city from your internet connection
+          (or you can simply pick your city from a list — nothing is detected at all). That city is used
+          to fetch a public weather forecast, and it never leaves your device beyond that request.</p>
+          <p>Forecast data comes from <b>MET Norway</b>, the Norwegian Meteorological Institute.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>The wallpaper doesn't move when I swipe between home screens.</summary>
+        <div class="a">
+          <p>Some phone launchers (Samsung's default, among others) don't tell wallpapers about
+          swiping. The app detects this and switches to <b>Manual panning</b> — touch and drag the
+          wallpaper itself to pan it.</p>
+          <p>You can pick your preferred mode any time under
+          <span class="path">Settings → DISPLAY → Camera Panning</span>.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>How do I open the wallpaper's settings?</summary>
+        <div class="a">
+          <p>Tap the small floating <b>settings button</b> on your home screen wallpaper (you can move
+          it, or hide it, from within Settings). You can also open the wallpaper preview and tap the
+          gear icon in the corner.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Why are there ads?</summary>
+        <div class="a">
+          <p>Ads keep the apps free. They only ever appear inside the Settings screens — never on your
+          wallpaper itself.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Which phones are supported?</summary>
+        <div class="a">
+          <p>Android 8.0 and newer. Live wallpapers aren't available on iOS, Fire tablets, or Fire TV —
+          that's a platform limitation, not an app setting.</p>
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+  <section id="support">
+    <div class="support-card">
+      <p class="kicker display">Support</p>
+      <h2 class="display">Stuck? A human will help.</h2>
+      <p>Email us and we'll get back to you — usually within a couple of days.</p>
+      <div class="btn-row">
+        <a class="btn btn-solid" href="mailto:support@3dgaze.com">support@3dgaze.com</a>
+      </div>
+      <div class="tip"><b>Tip:</b> the fastest route is the <b>EMAIL&nbsp;SUPPORT</b> button inside the
+      app (Settings → MORE tab). It pre-fills your app version and device details, so we can skip the
+      back-and-forth and get straight to fixing.</div>
+    </div>
+  </section>
+
+  <section id="privacy">
+    <p class="kicker display">Privacy</p>
+    <h2 class="display">Privacy, in plain words</h2>
+    <p class="privacy-note">3DGaze wallpapers don't require any Android permissions to run, don't collect
+    personal data, and never sell anything about you. Optional live weather uses your approximate city
+    (estimated from your internet connection, or picked by you) solely to fetch a forecast. Ads in the
+    Settings screens are served by Unity&nbsp;Ads under their own policy.
+    <em>The full privacy policy will live on this page.</em></p>
+  </section>
+</main>
+
+<footer>
+  <div class="foot-inner">
+    <span>© 2026 3DGaze</span>
+    <span>Weather data: <a href="https://www.met.no/en" target="_blank" rel="noopener">MET Norway</a> —
+      <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a></span>
+    <a href="#privacy">Privacy Policy</a>
+  </div>
+</footer>
+
+<script>
+  // Ambient starfield: a wallpaper studio's page should quietly live, like its product.
+  (function () {
+    var canvas = document.getElementById("stars");
+    var ctx = canvas.getContext("2d");
+    var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var stars = [], W = 0, H = 0;
+
+    function accent() {
+      return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#7CD6E6";
+    }
+    function size() {
+      var r = canvas.parentElement.getBoundingClientRect();
+      W = canvas.width = r.width * devicePixelRatio;
+      H = canvas.height = r.height * devicePixelRatio;
+    }
+    function seed() {
+      stars = [];
+      var n = Math.round(W / devicePixelRatio / 14);
+      for (var i = 0; i < n; i++) {
+        stars.push({
+          x: Math.random() * W, y: Math.random() * H,
+          r: (Math.random() * 1.1 + 0.4) * devicePixelRatio,
+          tw: Math.random() * Math.PI * 2,
+          sp: 0.06 + Math.random() * 0.12
+        });
+      }
+    }
+    function draw(t) {
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = accent();
+      for (var i = 0; i < stars.length; i++) {
+        var s = stars[i];
+        var a = reduced ? 0.35 : 0.18 + 0.3 * (0.5 + 0.5 * Math.sin(t / 1400 + s.tw));
+        ctx.globalAlpha = a;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+        if (!reduced) {
+          s.x += s.sp * devicePixelRatio * 0.25;
+          if (s.x > W + 4) s.x = -4;
+        }
+      }
+      ctx.globalAlpha = 1;
+      if (!reduced) requestAnimationFrame(draw);
+    }
+    size(); seed(); requestAnimationFrame(draw);
+    addEventListener("resize", function () { size(); seed(); if (reduced) requestAnimationFrame(draw); });
+  })();
+</script>
+
+</body>
+</html>
