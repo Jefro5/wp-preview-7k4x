@@ -254,11 +254,13 @@
       <details>
         <summary>How does the weather work? Do you track my location?</summary>
         <div class="a">
-          <p>No tracking, and no Android location permission — the app never asks for one. Live weather
-          is <b>off by default</b> and entirely opt-in.</p>
-          <p>If you turn it on, the app estimates your approximate city from your internet connection
-          (or you can simply pick your city from a list — nothing is detected at all). That city is used
-          to fetch a public weather forecast, and it never leaves your device beyond that request.</p>
+          <p>No tracking. Live weather is <b>off by default</b> and entirely opt-in — and by default it
+          needs no Android permission at all: it estimates your approximate city from your internet
+          connection, or you can simply pick your city from a list.</p>
+          <p>For exact accuracy there's an optional <b>“Local”</b> choice that uses your phone's
+          location. It only works if you select it yourself, Android asks for your permission first, it's
+          <b>city-level only</b> (never GPS-precise), and it's used solely to fetch weather and compute
+          sunrise/sunset — nothing is stored off your device or shared.</p>
           <p>Forecast data comes from <b>MET Norway</b>, the Norwegian Meteorological Institute.</p>
         </div>
       </details>
@@ -319,10 +321,12 @@
   <section id="privacy">
     <p class="kicker display">Privacy</p>
     <h2 class="display">Privacy, in plain words</h2>
-    <p class="privacy-note">3DGaze wallpapers don't require any Android permissions to run, don't collect
-    personal data, and never sell anything about you. Optional live weather uses your approximate city
-    (estimated from your internet connection, or picked by you) solely to fetch a forecast. Ads in the
-    Settings screens are served by Unity&nbsp;Ads under their own policy.
+    <p class="privacy-note">3DGaze wallpapers don't collect personal data and never sell anything about
+    you. Optional live weather uses your approximate city — estimated from your internet connection, or
+    picked by you from a list — solely to fetch a forecast. The optional <b>“Local”</b> mode uses your
+    phone's coarse (city-level) location instead: Android asks for the location permission <em>only if
+    you turn it on</em>, it's used only for weather and sunrise/sunset, and nothing is stored off your
+    device or shared. Ads in the Settings screens are served by Unity&nbsp;Ads under their own policy.
     <em>The full privacy policy will live on this page.</em></p>
   </section>
 </main>
