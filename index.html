@@ -918,12 +918,12 @@
       void p.offsetWidth;               // reflow so it can retrigger back-to-back
       p.classList.add("settling");
     }
-    // Start the settle ~200ms BEFORE the 0.55s slide finishes, so it overlaps the tail of the move
+    // Start the settle ~100ms BEFORE the 0.55s slide finishes, so it overlaps the tail of the move
     // and feels continuous — rather than waiting for the whole slide to end.
     function scheduleSettle() {
       if (reduced) return;
       clearTimeout(settleTimer);
-      settleTimer = setTimeout(function () { if (armed) settle(pendingDir); }, 350);
+      settleTimer = setTimeout(function () { if (armed) settle(pendingDir); }, 450);
     }
 
     function setX(px) {
