@@ -130,6 +130,7 @@
   .carousel-viewport.dragging { cursor: grabbing; }
   .carousel-track { display: flex; transition: transform 0.55s cubic-bezier(.4, 0, .2, 1); }
   .carousel-slide { flex: 0 0 100%; display: flex; justify-content: center; padding: 6px 0; }
+  .phone-tilt { display: inline-block; }
   .phone {
     position: relative; width: min(240px, 60vw); aspect-ratio: 9 / 19.3;
     background: #0a0d14; border-radius: 34px; padding: 9px;
@@ -153,23 +154,39 @@
   }
   .carousel-dots button[aria-selected="true"] { background: var(--accent); transform: scale(1.25); }
   .carousel-dots button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  /* Fake perspective on wider screens: tilt the phone back and turned to the right; ease toward
-     straight on hover/drag so it reacts to the user. */
+  /* Fake perspective on wider screens: tilt the phone back and FACE it toward the text (screen turned
+     left, since the copy sits on the left). Lives on a wrapper so the settle wobble below is free to use
+     the phone's own transform. Tighter perspective() = more dramatic FOV. */
   @media (min-width: 860px) {
-    .phone {
-      transform: perspective(1500px) rotateX(5deg) rotateY(16deg) rotateZ(-1deg);
-      transform-origin: 55% 50%;
-      box-shadow: 20px 34px 64px rgba(0, 0, 0, .55), inset 0 0 0 2px #2a3346;
-      transition: transform 0.5s ease, box-shadow 0.5s ease;
+    .phone-tilt {
+      transform: perspective(1000px) rotateX(6deg) rotateY(-22deg) rotateZ(-1.5deg);
+      transform-origin: 50% 50%;
+      transition: transform 0.5s ease;
       will-change: transform;
     }
-    .carousel:hover .phone, .carousel:focus-within .phone {
-      transform: perspective(1500px) rotateX(3deg) rotateY(9deg) rotateZ(-0.5deg);
-      box-shadow: 14px 26px 54px rgba(0, 0, 0, .5), inset 0 0 0 2px #2a3346;
+    .carousel:hover .phone-tilt, .carousel:focus-within .phone-tilt {
+      transform: perspective(1000px) rotateX(4deg) rotateY(-13deg) rotateZ(-0.8deg);
     }
-    .carousel-viewport.dragging .phone { transition: none; }
+    .carousel-viewport.dragging .phone-tilt { transition: none; }
+    .phone { box-shadow: -26px 34px 64px rgba(0, 0, 0, .55), inset 0 0 0 2px #2a3346; }
+    .carousel:hover .phone, .carousel:focus-within .phone { box-shadow: -16px 26px 54px rgba(0, 0, 0, .5), inset 0 0 0 2px #2a3346; }
   }
-  @media (prefers-reduced-motion: reduce) { .carousel-track, .phone { transition: none; } }
+
+  /* Inertia settle: when a slide lands (drag-snap or auto-advance) the phone leans in the travel
+     direction, then damps back to rest. --dir (+1/-1) is set per direction by the carousel JS. */
+  @keyframes phoneSettle {
+    0%   { transform: translateX(calc(var(--dir, 1) * 10px)) rotateZ(calc(var(--dir, 1) * 1.7deg)); }
+    35%  { transform: translateX(calc(var(--dir, 1) * -4px)) rotateZ(calc(var(--dir, 1) * -0.9deg)); }
+    60%  { transform: translateX(calc(var(--dir, 1) * 2px))  rotateZ(calc(var(--dir, 1) * 0.4deg)); }
+    80%  { transform: translateX(calc(var(--dir, 1) * -1px)) rotateZ(calc(var(--dir, 1) * -0.2deg)); }
+    100% { transform: translateX(0) rotateZ(0); }
+  }
+  .phone.settling { animation: phoneSettle 0.62s cubic-bezier(.22, .68, .3, 1) both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carousel-track, .phone-tilt { transition: none; }
+    .phone.settling { animation: none; }
+  }
 
   /* ---------- sections ---------- */
   main { max-width: 860px; margin: 0 auto; padding: 0 clamp(18px, 5vw, 48px) 40px; }
@@ -332,28 +349,28 @@
       <div class="carousel-viewport">
         <div class="carousel-track">
           <div class="carousel-slide" role="group" aria-roledescription="slide" aria-label="Preview 1 of 3">
-            <div class="phone"><div class="phone-screen">
+            <div class="phone-tilt"><div class="phone"><div class="phone-screen">
               <video autoplay muted loop playsinline preload="metadata" poster="assets/preview-1.jpg" aria-label="Living wallpaper preview 1">
                 <source src="assets/preview-1.webm" type="video/webm">
                 <source src="assets/preview-1.mp4" type="video/mp4">
               </video>
-            </div></div>
+            </div></div></div>
           </div>
           <div class="carousel-slide" role="group" aria-roledescription="slide" aria-label="Preview 2 of 3">
-            <div class="phone"><div class="phone-screen">
+            <div class="phone-tilt"><div class="phone"><div class="phone-screen">
               <video autoplay muted loop playsinline preload="none" poster="assets/preview-2.jpg" aria-label="Living wallpaper preview 2">
                 <source src="assets/preview-2.webm" type="video/webm">
                 <source src="assets/preview-2.mp4" type="video/mp4">
               </video>
-            </div></div>
+            </div></div></div>
           </div>
           <div class="carousel-slide" role="group" aria-roledescription="slide" aria-label="Preview 3 of 3">
-            <div class="phone"><div class="phone-screen">
+            <div class="phone-tilt"><div class="phone"><div class="phone-screen">
               <video autoplay muted loop playsinline preload="none" poster="assets/preview-3.jpg" aria-label="Living wallpaper preview 3">
                 <source src="assets/preview-3.webm" type="video/webm">
                 <source src="assets/preview-3.mp4" type="video/mp4">
               </video>
-            </div></div>
+            </div></div></div>
           </div>
         </div>
       </div>
@@ -841,6 +858,23 @@
       return b;
     });
 
+    slides.forEach(function (s) {
+      var p = s.querySelector(".phone");
+      if (p) p.addEventListener("animationend", function () { p.classList.remove("settling"); });
+    });
+
+    // Inertia settle on the landing phone. dir = the way it's travelling on screen (next slides in from
+    // the right, so it moves left -> -1; prev moves right -> +1).
+    function settle(dir) {
+      if (reduced) return;
+      var p = slides[i].querySelector(".phone");
+      if (!p) return;
+      p.style.setProperty("--dir", dir);
+      p.classList.remove("settling");
+      void p.offsetWidth;               // reflow so the animation can retrigger back-to-back
+      p.classList.add("settling");
+    }
+
     function playActive() {
       slides.forEach(function (s, idx) {
         var v = s.querySelector("video");
@@ -853,7 +887,10 @@
       dots.forEach(function (d, idx) { d.setAttribute("aria-selected", idx === i ? "true" : "false"); });
       playActive();
     }
-    function go(idx, user) { i = (idx + n) % n; render(); if (user) restart(); }
+    function go(idx, user) {
+      var dir = idx > i ? -1 : 1;       // next (idx>i) travels left; prev travels right
+      i = (idx + n) % n; render(); settle(dir); if (user) restart();
+    }
     function restart() { stop(); if (!reduced && n > 1) timer = setInterval(function () { go(i + 1); }, 4500); }
     function stop() { if (timer) { clearInterval(timer); timer = null; } }
 
