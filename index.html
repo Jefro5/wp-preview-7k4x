@@ -159,29 +159,24 @@
      the phone's own transform. Tighter perspective() = more dramatic FOV. */
   @media (min-width: 860px) {
     .phone-tilt {
-      transform: perspective(1000px) rotateX(6deg) rotateY(-22deg) rotateZ(-1.5deg);
+      transform: perspective(880px) rotateX(7deg) rotateY(-30deg) rotateZ(6deg);
       transform-origin: 50% 50%;
-      transition: transform 0.5s ease;
       will-change: transform;
     }
-    .carousel:hover .phone-tilt, .carousel:focus-within .phone-tilt {
-      transform: perspective(1000px) rotateX(4deg) rotateY(-13deg) rotateZ(-0.8deg);
-    }
-    .carousel-viewport.dragging .phone-tilt { transition: none; }
-    .phone { box-shadow: -26px 34px 64px rgba(0, 0, 0, .55), inset 0 0 0 2px #2a3346; }
-    .carousel:hover .phone, .carousel:focus-within .phone { box-shadow: -16px 26px 54px rgba(0, 0, 0, .5), inset 0 0 0 2px #2a3346; }
+    /* Keep the phone at a constant tilt — no straightening on hover or while dragging. */
+    .phone { box-shadow: -28px 34px 66px rgba(0, 0, 0, .55), inset 0 0 0 2px #2a3346; }
   }
 
   /* Inertia settle: when a slide lands (drag-snap or auto-advance) the phone leans in the travel
      direction, then damps back to rest. --dir (+1/-1) is set per direction by the carousel JS. */
   @keyframes phoneSettle {
-    0%   { transform: translateX(calc(var(--dir, 1) * 10px)) rotateZ(calc(var(--dir, 1) * 1.7deg)); }
-    35%  { transform: translateX(calc(var(--dir, 1) * -4px)) rotateZ(calc(var(--dir, 1) * -0.9deg)); }
-    60%  { transform: translateX(calc(var(--dir, 1) * 2px))  rotateZ(calc(var(--dir, 1) * 0.4deg)); }
-    80%  { transform: translateX(calc(var(--dir, 1) * -1px)) rotateZ(calc(var(--dir, 1) * -0.2deg)); }
+    0%   { transform: translateX(calc(var(--dir, 1) * 15px))  rotateZ(calc(var(--dir, 1) * 2.6deg)); }
+    30%  { transform: translateX(calc(var(--dir, 1) * -7px))  rotateZ(calc(var(--dir, 1) * -1.3deg)); }
+    55%  { transform: translateX(calc(var(--dir, 1) * 3px))   rotateZ(calc(var(--dir, 1) * 0.6deg)); }
+    78%  { transform: translateX(calc(var(--dir, 1) * -1.2px)) rotateZ(calc(var(--dir, 1) * -0.25deg)); }
     100% { transform: translateX(0) rotateZ(0); }
   }
-  .phone.settling { animation: phoneSettle 0.62s cubic-bezier(.22, .68, .3, 1) both; }
+  .phone.settling { animation: phoneSettle 0.72s cubic-bezier(.2, .7, .3, 1) both; }
 
   @media (prefers-reduced-motion: reduce) {
     .carousel-track, .phone-tilt { transition: none; }
@@ -847,7 +842,7 @@
     var slides = Array.prototype.slice.call(root.querySelectorAll(".carousel-slide"));
     var dotsWrap = root.querySelector(".carousel-dots");
     var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var n = slides.length, i = 0, timer = null;
+    var n = slides.length, i = 0, timer = null, pendingDir = 1, armed = false;
 
     var dots = slides.map(function (_, idx) {
       var b = document.createElement("button");
@@ -875,6 +870,12 @@
       p.classList.add("settling");
     }
 
+    // Fire the settle the moment the slide finishes moving (not while it's still sliding), so the
+    // inertia reads clearly — whether it moved by drag-snap or on its own.
+    track.addEventListener("transitionend", function (e) {
+      if (e.propertyName === "transform" && armed) settle(pendingDir);
+    });
+
     function playActive() {
       slides.forEach(function (s, idx) {
         var v = s.querySelector("video");
@@ -888,8 +889,9 @@
       playActive();
     }
     function go(idx, user) {
-      var dir = idx > i ? -1 : 1;       // next (idx>i) travels left; prev travels right
-      i = (idx + n) % n; render(); settle(dir); if (user) restart();
+      pendingDir = idx > i ? -1 : 1;    // next (idx>i) travels left; prev travels right
+      armed = true;
+      i = (idx + n) % n; render(); if (user) restart();  // settle fires on the track's transitionend
     }
     function restart() { stop(); if (!reduced && n > 1) timer = setInterval(function () { go(i + 1); }, 4500); }
     function stop() { if (timer) { clearInterval(timer); timer = null; } }
@@ -919,7 +921,7 @@
       var th = Math.min(80, vp.clientWidth * 0.18);
       if (dx <= -th) go(i + 1, true);
       else if (dx >= th) go(i - 1, true);
-      else render();
+      else { pendingDir = dx < 0 ? -1 : 1; armed = true; render(); }  // snap back, still settle
       restart(); dx = 0;
     }
     vp.addEventListener("pointerup", endDrag);
