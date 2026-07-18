@@ -163,8 +163,8 @@
     background: linear-gradient(165deg, #7db6e8, #cfe6f6 55%, #8fcf7a);
   }
   .phone-screen video, .phone-screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
-  .carousel-slide:nth-child(2) .phone-screen { background: linear-gradient(165deg, #f2ad6c, #b5567a 58%, #35284d); }
-  .carousel-slide:nth-child(3) .phone-screen { background: linear-gradient(180deg, #0b1830, #143056 55%, #1d3c2b); }
+  .carousel-slide.sc1 .phone-screen { background: linear-gradient(165deg, #f2ad6c, #b5567a 58%, #35284d); }
+  .carousel-slide.sc2 .phone-screen { background: linear-gradient(180deg, #0b1830, #143056 55%, #1d3c2b); }
   .carousel-dots { display: flex; gap: 9px; justify-content: center; margin-top: 22px; }
   .carousel-dots button {
     width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%;
@@ -297,7 +297,7 @@
   .gp-links .gp-t { font-weight: 600; }
   .gp-links .gp-d { color: var(--muted); font-size: 0.88rem; }
   .gp-links a::after { content: "↗"; color: var(--accent); flex: none; font-size: 1.05rem; }
-  .gp-note { color: var(--muted); margin-top: 18px; font-size: 0.9rem; max-width: 62ch; }
+  .gp-note { color: var(--muted); margin-top: 18px; font-size: 0.9rem; max-width: none; }
 
   /* ---------- Google Play badge / download ---------- */
   .play-badge {
@@ -370,7 +370,7 @@
     <div class="carousel" id="hero-carousel" aria-roledescription="carousel" aria-label="Wallpaper previews on a phone">
       <div class="carousel-viewport">
         <div class="carousel-track">
-          <div class="carousel-slide" role="group" aria-roledescription="slide" aria-label="Preview 1 of 3">
+          <div class="carousel-slide sc0" role="group" aria-roledescription="slide" aria-label="Preview 1 of 3">
             <div class="phone-tilt"><div class="phone"><div class="phone-screen">
               <video autoplay muted loop playsinline preload="metadata" poster="assets/preview-1.jpg" aria-label="Living wallpaper preview 1">
                 <source src="assets/preview-1.webm" type="video/webm">
@@ -378,7 +378,7 @@
               </video>
             </div></div></div>
           </div>
-          <div class="carousel-slide" role="group" aria-roledescription="slide" aria-label="Preview 2 of 3">
+          <div class="carousel-slide sc1" role="group" aria-roledescription="slide" aria-label="Preview 2 of 3">
             <div class="phone-tilt"><div class="phone"><div class="phone-screen">
               <video autoplay muted loop playsinline preload="none" poster="assets/preview-2.jpg" aria-label="Living wallpaper preview 2">
                 <source src="assets/preview-2.webm" type="video/webm">
@@ -386,7 +386,7 @@
               </video>
             </div></div></div>
           </div>
-          <div class="carousel-slide" role="group" aria-roledescription="slide" aria-label="Preview 3 of 3">
+          <div class="carousel-slide sc2" role="group" aria-roledescription="slide" aria-label="Preview 3 of 3">
             <div class="phone-tilt"><div class="phone"><div class="phone-screen">
               <video autoplay muted loop playsinline preload="none" poster="assets/preview-3.jpg" aria-label="Living wallpaper preview 3">
                 <source src="assets/preview-3.webm" type="video/webm">
@@ -861,68 +861,99 @@
 </script>
 
 <script>
-  // Hero phone carousel: auto-advance, dots, swipe; only the active slide's video plays.
+  // Hero phone carousel: seamless infinite loop (clones on both ends), auto-advance, dots, drag.
   (function () {
     var root = document.getElementById("hero-carousel");
     if (!root) return;
     var track = root.querySelector(".carousel-track");
-    var slides = Array.prototype.slice.call(root.querySelectorAll(".carousel-slide"));
+    var vp = root.querySelector(".carousel-viewport");
     var dotsWrap = root.querySelector(".carousel-dots");
     var bgs = Array.prototype.slice.call(document.querySelectorAll(".hero-bg .hbg"));
     var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var n = slides.length, i = 0, timer = null, pendingDir = 1, armed = false;
+    var TRANS = reduced ? "none" : "transform 0.55s cubic-bezier(.4, 0, .2, 1)";
 
-    var dots = slides.map(function (_, idx) {
+    var real = Array.prototype.slice.call(root.querySelectorAll(".carousel-slide"));
+    var n = real.length;
+
+    // Clone last -> front and first -> back, so last->first (and first->last) is ONE seamless step
+    // instead of a long reverse scroll; after landing on a clone we jump instantly to its real twin.
+    if (n > 1) {
+      var lastClone = real[n - 1].cloneNode(true);
+      var firstClone = real[0].cloneNode(true);
+      [lastClone, firstClone].forEach(function (c) { c.classList.add("clone"); c.setAttribute("aria-hidden", "true"); });
+      track.insertBefore(lastClone, real[0]);
+      track.appendChild(firstClone);
+    }
+    var all = Array.prototype.slice.call(track.querySelectorAll(".carousel-slide"));
+    var pos = n > 1 ? 1 : 0;           // index into `all`; real slide k lives at all[k+1]
+    var pendingDir = 1, armed = false, timer = null;
+
+    function realIndex() { return n > 1 ? ((pos - 1) + n) % n : 0; }
+
+    var dots = real.map(function (_, idx) {
       var b = document.createElement("button");
       b.setAttribute("role", "tab");
       b.setAttribute("aria-label", "Preview " + (idx + 1));
-      b.addEventListener("click", function () { go(idx, true); });
+      b.addEventListener("click", function () { go(idx + (n > 1 ? 1 : 0), true); });
       dotsWrap.appendChild(b);
       return b;
     });
 
-    slides.forEach(function (s) {
+    all.forEach(function (s) {
       var p = s.querySelector(".phone");
       if (p) p.addEventListener("animationend", function () { p.classList.remove("settling"); });
     });
 
-    // Inertia settle on the landing phone. dir = the way it's travelling on screen (next slides in from
-    // the right, so it moves left -> -1; prev moves right -> +1).
+    // Inertia settle on the landing phone. dir = travel direction (next moves left -> -1; prev -> +1).
     function settle(dir) {
       if (reduced) return;
-      var p = slides[i].querySelector(".phone");
+      var p = all[pos] && all[pos].querySelector(".phone");
       if (!p) return;
       p.style.setProperty("--dir", dir);
       p.classList.remove("settling");
-      void p.offsetWidth;               // reflow so the animation can retrigger back-to-back
+      void p.offsetWidth;               // reflow so it can retrigger back-to-back
       p.classList.add("settling");
     }
 
-    // Fire the settle the moment the slide finishes moving (not while it's still sliding), so the
-    // inertia reads clearly — whether it moved by drag-snap or on its own.
-    track.addEventListener("transitionend", function (e) {
-      if (e.propertyName === "transform" && armed) settle(pendingDir);
-    });
-
-    function playActive() {
-      slides.forEach(function (s, idx) {
-        var v = s.querySelector("video");
-        if (!v) return;
-        try { if (idx === i) v.play().catch(function () {}); else v.pause(); } catch (e) {}
+    function setX(px) {
+      track.style.transform = "translateX(" + (-pos * 100) + "%)" + (px ? " translateX(" + px + "px)" : "");
+    }
+    function paint() {
+      var ri = realIndex();
+      dots.forEach(function (d, idx) { d.setAttribute("aria-selected", idx === ri ? "true" : "false"); });
+      bgs.forEach(function (b, idx) { b.classList.toggle("active", idx === ri); });
+      all.forEach(function (s, idx) {
+        var v = s.querySelector("video"); if (!v) return;
+        try { if (idx === pos) v.play().catch(function () {}); else v.pause(); } catch (e) {}
       });
     }
-    function render() {
-      track.style.transform = "translateX(" + (-i * 100) + "%)";
-      dots.forEach(function (d, idx) { d.setAttribute("aria-selected", idx === i ? "true" : "false"); });
-      bgs.forEach(function (b, idx) { b.classList.toggle("active", idx === i); });
-      playActive();
+    function render(withTrans) {
+      track.style.transition = withTrans ? TRANS : "none";
+      setX(0);
+      paint();
     }
-    function go(idx, user) {
-      pendingDir = idx > i ? -1 : 1;    // next (idx>i) travels left; prev travels right
+
+    // If we've landed on a clone, jump instantly to its real twin.
+    function normalize() {
+      if (n > 1 && pos === 0) { pos = n; render(false); }
+      else if (n > 1 && pos === n + 1) { pos = 1; render(false); }
+    }
+    // After a slide lands: normalize any clone, then fire the settle.
+    track.addEventListener("transitionend", function (e) {
+      if (e.propertyName !== "transform") return;
+      normalize();
+      if (armed) settle(pendingDir);
+    });
+
+    function go(newPos, user) {
+      pendingDir = newPos > pos ? -1 : 1;
       armed = true;
-      i = (idx + n) % n; render(); if (user) restart();  // settle fires on the track's transitionend
+      pos = newPos;
+      render(true);
+      if (reduced) normalize();   // transitions off -> no transitionend fires, so jump now
+      if (user) restart();
     }
-    function restart() { stop(); if (!reduced && n > 1) timer = setInterval(function () { go(i + 1); }, 4500); }
+    function restart() { stop(); if (!reduced && n > 1) timer = setInterval(function () { go(pos + 1); }, 4500); }
     function stop() { if (timer) { clearInterval(timer); timer = null; } }
 
     root.addEventListener("mouseenter", stop);
@@ -931,8 +962,7 @@
     root.addEventListener("focusout", restart);
     document.addEventListener("visibilitychange", function () { document.hidden ? stop() : restart(); });
 
-    // Pointer drag (mouse AND touch): the track follows the drag, then snaps to the nearest slide.
-    var vp = root.querySelector(".carousel-viewport");
+    // Pointer drag (mouse AND touch): the track follows the drag, then advances/snaps.
     var down = false, sx = 0, dx = 0;
     vp.addEventListener("pointerdown", function (e) {
       down = true; sx = e.clientX; dx = 0;
@@ -942,22 +972,23 @@
     vp.addEventListener("pointermove", function (e) {
       if (!down) return;
       dx = e.clientX - sx;
-      track.style.transform = "translateX(" + (-i * 100) + "%) translateX(" + dx + "px)";
+      setX(dx);
     });
     function endDrag() {
       if (!down) return;
-      down = false; vp.classList.remove("dragging"); track.style.transition = "";
+      down = false; vp.classList.remove("dragging");
       var th = Math.min(80, vp.clientWidth * 0.18);
-      if (dx <= -th) go(i + 1, true);
-      else if (dx >= th) go(i - 1, true);
-      else { pendingDir = dx < 0 ? -1 : 1; armed = true; render(); }  // snap back, still settle
-      restart(); dx = 0;
+      if (n > 1 && dx <= -th) go(pos + 1, true);
+      else if (n > 1 && dx >= th) go(pos - 1, true);
+      else { pendingDir = dx < 0 ? -1 : 1; armed = true; render(true); }  // snap back, still settle
+      dx = 0; restart();
     }
     vp.addEventListener("pointerup", endDrag);
     vp.addEventListener("pointercancel", endDrag);
     vp.addEventListener("pointerleave", endDrag);
 
-    render(); restart();
+    render(false);
+    restart();
   })();
 </script>
 
