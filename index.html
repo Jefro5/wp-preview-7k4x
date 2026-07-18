@@ -175,6 +175,41 @@
   }
   .tip b { color: var(--text); }
 
+  /* ---------- FAQ search ---------- */
+  .faq-search { position: relative; margin: 0 0 22px; }
+  .faq-search input {
+    width: 100%; padding: 14px 46px 14px 18px; border-radius: 14px;
+    background: var(--panel); border: 1px solid var(--panel-edge); color: var(--text);
+    font: inherit; font-size: 1rem; outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .faq-search input::placeholder { color: var(--muted); }
+  .faq-search input:focus-visible { border-color: var(--accent); }
+  .faq-search svg {
+    position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+    width: 18px; height: 18px; stroke: var(--muted); fill: none; stroke-width: 2;
+    pointer-events: none;
+  }
+  details.is-hidden { display: none; }
+  .faq-empty { color: var(--muted); padding: 6px 2px; display: none; }
+  .faq-empty.show { display: block; }
+  .faq-empty b { color: var(--text); }
+
+  /* ---------- Google Play help links ---------- */
+  .gp-links { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .gp-links a {
+    display: flex; align-items: center; gap: 14px;
+    padding: 15px 18px; border-radius: 14px; text-decoration: none;
+    background: var(--panel); border: 1px solid var(--panel-edge); color: var(--text);
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .gp-links a:hover, .gp-links a:focus-visible { border-color: var(--accent); transform: translateY(-1px); }
+  .gp-links a > span { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .gp-links .gp-t { font-weight: 600; }
+  .gp-links .gp-d { color: var(--muted); font-size: 0.88rem; }
+  .gp-links a::after { content: "↗"; color: var(--accent); flex: none; font-size: 1.05rem; }
+  .gp-note { color: var(--muted); margin-top: 18px; font-size: 0.9rem; max-width: 62ch; }
+
   /* ---------- privacy + footer ---------- */
   .privacy-note { color: var(--muted); }
   .privacy-note a { color: var(--accent); }
@@ -228,6 +263,15 @@
   <section id="faq">
     <p class="kicker display">Answers</p>
     <h2 class="display">Frequently asked questions</h2>
+
+    <div class="faq-search">
+      <input id="faq-q" type="search" placeholder="Search the FAQ…" aria-label="Search the FAQ"
+             autocomplete="off" autocapitalize="none" spellcheck="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.65" y2="16.65"/></svg>
+    </div>
+    <p class="faq-empty" id="faq-empty">No matches. Try a different word — or just
+      <a href="#support">email us</a> and a human will help.</p>
+
     <div class="faq">
 
       <details open>
@@ -242,12 +286,39 @@
       </details>
 
       <details>
-        <summary>Will a live wallpaper drain my battery?</summary>
+        <summary>How do I open the wallpaper's settings?</summary>
         <div class="a">
-          <p>Far less than you'd expect. The wallpaper only renders while it's actually visible — the
-          moment you open an app or the screen turns off, it stops doing work entirely.</p>
-          <p>If you want to trim it further, the <span class="path">PERFORMANCE</span> tab in the
-          wallpaper's settings lets you lower the visual quality and frame rate.</p>
+          <p>Tap the small floating <b>settings button</b> on your home screen wallpaper (you can move
+          it, or hide it, from within Settings). You can also open the wallpaper preview and tap the
+          gear icon in the corner.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Can I use my own photo?</summary>
+        <div class="a">
+          <p>Yes. Open <span class="path">Settings → CUSTOMIZE</span>, turn on <b>Custom Photo</b>, then
+          tap <b>SET PHOTO</b> and pick an image from your gallery. The photo becomes part of the scene.</p>
+          <p>If a photo won't set, it's almost always a very large image or one still downloading from an
+          online source — try a photo already saved on the phone, or one straight from your camera.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>How do I reset the photo back to the default?</summary>
+        <div class="a">
+          <p>In <span class="path">Settings → CUSTOMIZE</span>, with Custom Photo on, tap
+          <b>RESET&nbsp;PHOTO</b>. It restores the scene's original artwork in one tap — no reinstall
+          needed.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>What are Themes?</summary>
+        <div class="a">
+          <p>A Theme is a ready-made bundle of settings — a coordinated look you can apply in one tap
+          from the <span class="path">THEMES</span> section. Prefer your own mix? Just set the individual
+          options and skip the themes; nothing is locked.</p>
         </div>
       </details>
 
@@ -266,22 +337,49 @@
       </details>
 
       <details>
+        <summary>The time of day or sky doesn't match what's outside.</summary>
+        <div class="a">
+          <p>By default the scene follows the real sun — sunrise, daytime, sunset and night — for your
+          location. If it looks off, open <span class="path">Settings → CUSTOMIZE → TIME OF DAY</span>
+          and either pick your city, or choose <b>Auto&nbsp;Local</b> so it uses your exact sunrise and
+          sunset times.</p>
+          <p>Want to set the mood yourself instead? Turn on <b>Custom Sunrise &amp; Sunset</b> to dial in
+          your own times, or pick a fixed time of day.</p>
+        </div>
+      </details>
+
+      <details>
         <summary>The wallpaper doesn't move when I swipe between home screens.</summary>
         <div class="a">
           <p>Some phone launchers (Samsung's default, among others) don't tell wallpapers about
           swiping. The app detects this and switches to <b>Manual panning</b> — touch and drag the
           wallpaper itself to pan it.</p>
           <p>You can pick your preferred mode any time under
-          <span class="path">Settings → DISPLAY → Camera Panning</span>.</p>
+          <span class="path">Settings → DISPLAY → Camera Panning</span>, and set how many home screens
+          you have there too.</p>
         </div>
       </details>
 
       <details>
-        <summary>How do I open the wallpaper's settings?</summary>
+        <summary>Will a live wallpaper drain my battery?</summary>
         <div class="a">
-          <p>Tap the small floating <b>settings button</b> on your home screen wallpaper (you can move
-          it, or hide it, from within Settings). You can also open the wallpaper preview and tap the
-          gear icon in the corner.</p>
+          <p>Far less than you'd expect. The wallpaper only renders while it's actually visible — the
+          moment you open an app or the screen turns off, it stops doing work entirely.</p>
+          <p>If you want to trim it further, the <span class="path">PERFORMANCE</span> tab in the
+          wallpaper's settings lets you lower the visual quality and frame rate.</p>
+          <p>One note: your phone's battery screen lists a “screen on” figure next to the wallpaper —
+          that's the cost of the <em>display</em> being on, not the wallpaper's own work.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>The wallpaper feels slow or stutters.</summary>
+        <div class="a">
+          <p>The usual cause is something else on your home screen competing for the phone —
+          busy widgets or a heavy custom launcher can starve the wallpaper of CPU. Try removing widgets
+          one at a time to find the culprit.</p>
+          <p>You can also drop the load in <span class="path">Settings → PERFORMANCE</span>: choose the
+          <b>Low</b> or <b>Medium</b> quality tier for a lighter, smoother render.</p>
         </div>
       </details>
 
@@ -294,6 +392,33 @@
       </details>
 
       <details>
+        <summary>How do I remove the ads — and do I keep it on a new phone?</summary>
+        <div class="a">
+          <p>Open <span class="path">Settings → CUSTOMIZE</span> and tap <b>REMOVE ADS</b>. It's a
+          single one-time purchase — no subscription.</p>
+          <p>It's tied to your Google account, so it follows you: reinstall the app or set up a new phone
+          with the same account and Remove Ads comes back automatically. There's no “restore” button to
+          hunt for — just sign in with the same account.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Is there any sound?</summary>
+        <div class="a">
+          <p>No — the wallpapers are silent by design, so they never interrupt your music or make noise
+          in your pocket.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>What languages are supported?</summary>
+        <div class="a">
+          <p>English for now. More languages are on the list — if there's one you'd love to see, drop us
+          a note from the Support section below.</p>
+        </div>
+      </details>
+
+      <details>
         <summary>Which phones are supported?</summary>
         <div class="a">
           <p>Android 8.0 and newer. Live wallpapers aren't available on iOS, Fire tablets, or Fire TV —
@@ -301,7 +426,62 @@
         </div>
       </details>
 
+      <details>
+        <summary>How do I uninstall the wallpaper?</summary>
+        <div class="a">
+          <p>Set a different wallpaper first (some phones won't let you remove the one that's currently
+          live), then uninstall the app the normal way: <span class="path">System Settings → Apps</span>
+          → the app → <b>Uninstall</b>. Or long-press its icon and choose Uninstall.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>My payment was declined, or I'd like a refund.</summary>
+        <div class="a">
+          <p>Purchases and refunds are handled entirely by Google Play, not by us — so those are quickest
+          to sort out on Google's side. The <a href="#gplay">Google Play help links</a> just below cover
+          declined payments, order history and refunds.</p>
+          <p>If it's about an issue with the app itself, email us and we'll make it right.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>I found a bug or have a suggestion.</summary>
+        <div class="a">
+          <p>Please tell us — a lot of what ships comes straight from user feedback. The fastest route is
+          the <b>EMAIL&nbsp;SUPPORT</b> button in the app (Settings → MORE), which attaches your app
+          version and device details automatically, so we can get straight to it. Or email
+          <a href="mailto:support@3dgaze.com">support@3dgaze.com</a>.</p>
+        </div>
+      </details>
+
     </div>
+  </section>
+
+  <section id="gplay">
+    <p class="kicker display">Google Play</p>
+    <h2 class="display">Google Play help</h2>
+    <p style="color: var(--muted); margin: 0 0 22px; max-width: 62ch;">Downloads, payments, order history
+      and refunds are all handled by Google Play. These links take you straight to the right page.</p>
+    <ul class="gp-links">
+      <li><a href="https://support.google.com/googleplay/answer/1067233" target="_blank" rel="noopener">
+        <span><span class="gp-t">Can't download or install</span>
+        <span class="gp-d">Fixes for apps that won't download from the Play Store</span></span></a></li>
+      <li><a href="https://support.google.com/googleplay/answer/4646404" target="_blank" rel="noopener">
+        <span><span class="gp-t">Payment problems</span>
+        <span class="gp-d">Declined cards, carrier billing and other payment issues</span></span></a></li>
+      <li><a href="https://play.google.com/store/account" target="_blank" rel="noopener">
+        <span><span class="gp-t">Order history &amp; receipts</span>
+        <span class="gp-d">See your purchases and their status</span></span></a></li>
+      <li><a href="https://support.google.com/googleplay/answer/2479637" target="_blank" rel="noopener">
+        <span><span class="gp-t">Request a refund</span>
+        <span class="gp-d">Google's refund policy and how to ask</span></span></a></li>
+      <li><a href="https://support.google.com/googleplay/gethelp" target="_blank" rel="noopener">
+        <span><span class="gp-t">Contact Google Play</span>
+        <span class="gp-d">Reach Google directly for account or billing help</span></span></a></li>
+    </ul>
+    <p class="gp-note">Anything about the app itself — a scene not working, a setting, a bug — is us, not
+      Google. Use <a href="#support" style="color: var(--accent);">Support</a> for those.</p>
   </section>
 
   <section id="support">
@@ -388,6 +568,29 @@
     }
     size(); seed(); requestAnimationFrame(draw);
     addEventListener("resize", function () { size(); seed(); if (reduced) requestAnimationFrame(draw); });
+  })();
+</script>
+
+<script>
+  // FAQ search: live-filter the accordion by any word in a question or its answer.
+  (function () {
+    var input = document.getElementById("faq-q");
+    if (!input) return;
+    var items = Array.prototype.slice.call(document.querySelectorAll("#faq .faq details"));
+    var empty = document.getElementById("faq-empty");
+    var texts = items.map(function (d) { return d.textContent.toLowerCase(); });
+    function apply() {
+      var q = input.value.trim().toLowerCase();
+      var shown = 0;
+      items.forEach(function (d, i) {
+        var hit = q === "" || texts[i].indexOf(q) !== -1;
+        d.classList.toggle("is-hidden", !hit);
+        if (hit) { shown++; if (q !== "") d.open = true; }   // open matches so the answer shows
+      });
+      if (q === "") items.forEach(function (d, i) { d.open = (i === 0); }); // reset: only the first open
+      if (empty) empty.classList.toggle("show", shown === 0);
+    }
+    input.addEventListener("input", apply);
   })();
 </script>
 
