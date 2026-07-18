@@ -144,7 +144,7 @@
   .carousel { position: relative; width: 100%; -webkit-user-select: none; user-select: none; }
   /* Vertical padding gives the tilted/leaning phone room so overflow:hidden (needed to clip the side
      slides horizontally) doesn't cut off its bottom corner. */
-  .carousel-viewport { overflow: hidden; cursor: grab; touch-action: pan-y; padding: 60px 0; }
+  .carousel-viewport { overflow: hidden; cursor: grab; touch-action: pan-y; padding: 70px 4px; }
   .carousel-viewport.dragging { cursor: grabbing; }
   .carousel-track { display: flex; transition: transform 0.55s cubic-bezier(.4, 0, .2, 1); }
   .carousel-slide { flex: 0 0 100%; display: flex; justify-content: center; padding: 6px 0; }
@@ -152,7 +152,7 @@
   .phone {
     position: relative; width: min(240px, 60vw); aspect-ratio: 9 / 19.3;
     background: #0a0d14; border-radius: 34px; padding: 9px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, .5), inset 0 0 0 2px #2a3346;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .5), inset 0 0 0 2px #2a3346;
   }
   .phone::before {
     content: ""; position: absolute; z-index: 3; top: 15px; left: 50%; transform: translateX(-50%);
@@ -182,16 +182,16 @@
       will-change: transform;
     }
     /* Keep the phone at a constant tilt — no straightening on hover or while dragging. */
-    .phone { box-shadow: -28px 34px 66px rgba(0, 0, 0, .55), inset 0 0 0 2px #2a3346; }
+    .phone { box-shadow: -16px 18px 40px rgba(0, 0, 0, .5), inset 0 0 0 2px #2a3346; }
   }
 
   /* Inertia settle: when a slide lands (drag-snap or auto-advance) the phone leans in the travel
      direction, then damps back to rest. --dir (+1/-1) is set per direction by the carousel JS. */
   @keyframes phoneSettle {
-    0%   { transform: translateX(calc(var(--dir, 1) * 15px))  rotateZ(calc(var(--dir, 1) * 2.6deg)); }
-    30%  { transform: translateX(calc(var(--dir, 1) * -7px))  rotateZ(calc(var(--dir, 1) * -1.3deg)); }
-    55%  { transform: translateX(calc(var(--dir, 1) * 3px))   rotateZ(calc(var(--dir, 1) * 0.6deg)); }
-    78%  { transform: translateX(calc(var(--dir, 1) * -1.2px)) rotateZ(calc(var(--dir, 1) * -0.25deg)); }
+    0%   { transform: translateX(calc(var(--dir, 1) * 7px))   rotateZ(calc(var(--dir, 1) * 1.2deg)); }
+    30%  { transform: translateX(calc(var(--dir, 1) * -3px))  rotateZ(calc(var(--dir, 1) * -0.55deg)); }
+    55%  { transform: translateX(calc(var(--dir, 1) * 1.3px)) rotateZ(calc(var(--dir, 1) * 0.24deg)); }
+    78%  { transform: translateX(calc(var(--dir, 1) * -0.6px)) rotateZ(calc(var(--dir, 1) * -0.1deg)); }
     100% { transform: translateX(0) rotateZ(0); }
   }
   .phone.settling { animation: phoneSettle 0.36s cubic-bezier(.2, .7, .3, 1) both; }
