@@ -255,10 +255,14 @@
     color: var(--muted); font-size: 0.92rem;
   }
   .tip b { color: var(--text); }
-  .support-ask-lead { color: var(--muted); margin: 24px 0 8px; }
-  .support-ask { margin: 0; padding: 0 0 0 1.15em; color: var(--muted); }
-  .support-ask li { margin: 5px 0; }
-  .support-ask li b { color: var(--text); }
+  .support-ask-lead { color: var(--text); margin: 26px 0 14px; }
+  .support-ask { margin: 0; padding: 0; list-style: none; display: grid; gap: 11px; }
+  .support-ask li { position: relative; padding-left: 24px; color: var(--muted); line-height: 1.55; }
+  .support-ask li::before {
+    content: ""; position: absolute; left: 4px; top: 0.62em;
+    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  }
+  .support-ask li b { color: var(--text); font-weight: 600; }
 
   /* ---------- FAQ search ---------- */
   .faq-search { position: relative; margin: 0 0 22px; }
@@ -309,7 +313,7 @@
   .play-badge .pb-main { font-size: 1.18rem; font-weight: 600; letter-spacing: 0.01em; }
 
   /* ---------- privacy + footer ---------- */
-  .privacy-note { color: var(--muted); }
+  .privacy-note { color: var(--muted); max-width: none; }
   .privacy-note a { color: var(--accent); }
   footer {
     margin-top: clamp(60px, 9vw, 90px);
@@ -401,7 +405,7 @@
   <section id="download">
     <p class="kicker display">Get the app</p>
     <h2 class="display">Download</h2>
-    <p style="color: var(--muted); margin: 0 0 26px; max-width: 62ch;">Living wallpapers for Android 8.0
+    <p style="color: var(--muted); margin: 0 0 26px; max-width: none;">Living wallpapers for Android 8.0
       and newer — real weather, real sunrise and sunset, scenes that breathe. Free to try, with an
       optional one-time Remove&nbsp;Ads.</p>
     <a class="play-badge" href="https://play.google.com/store/apps/details?id=com.LiveImage.JDP_Beta_LWP"
