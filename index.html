@@ -174,6 +174,10 @@
     color: var(--muted); font-size: 0.92rem;
   }
   .tip b { color: var(--text); }
+  .support-ask-lead { color: var(--muted); margin: 24px 0 8px; }
+  .support-ask { margin: 0; padding: 0 0 0 1.15em; color: var(--muted); }
+  .support-ask li { margin: 5px 0; }
+  .support-ask li b { color: var(--text); }
 
   /* ---------- FAQ search ---------- */
   .faq-search { position: relative; margin: 0 0 22px; }
@@ -210,6 +214,19 @@
   .gp-links a::after { content: "↗"; color: var(--accent); flex: none; font-size: 1.05rem; }
   .gp-note { color: var(--muted); margin-top: 18px; font-size: 0.9rem; max-width: 62ch; }
 
+  /* ---------- Google Play badge / download ---------- */
+  .play-badge {
+    display: inline-flex; align-items: center; gap: 13px;
+    padding: 11px 22px 11px 18px; border-radius: 13px;
+    background: #000; border: 1px solid #333; color: #fff; text-decoration: none;
+    box-shadow: var(--shadow); transition: transform 0.15s ease;
+  }
+  .play-badge:hover, .play-badge:focus-visible { transform: translateY(-1px); }
+  .play-badge svg { width: 26px; height: 26px; flex: none; }
+  .play-badge .pb-text { display: flex; flex-direction: column; line-height: 1.15; text-align: left; }
+  .play-badge .pb-top { font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.9; }
+  .play-badge .pb-main { font-size: 1.18rem; font-weight: 600; letter-spacing: 0.01em; }
+
   /* ---------- privacy + footer ---------- */
   .privacy-note { color: var(--muted); }
   .privacy-note a { color: var(--accent); }
@@ -239,6 +256,7 @@
 <nav>
   <a class="wordmark" href="#top"><b>3D</b>GAZE<i>.</i></a>
   <div class="links">
+    <a href="#download">Download</a>
     <a href="#faq">FAQ</a>
     <a href="#support">Support</a>
     <a href="#privacy">Privacy</a>
@@ -260,6 +278,31 @@
 </header>
 
 <main>
+  <section id="download">
+    <p class="kicker display">Get the app</p>
+    <h2 class="display">Download</h2>
+    <p style="color: var(--muted); margin: 0 0 26px; max-width: 62ch;">Living wallpapers for Android 8.0
+      and newer — real weather, real sunrise and sunset, scenes that breathe. Free to try, with an
+      optional one-time Remove&nbsp;Ads.</p>
+    <a class="play-badge" href="https://play.google.com/store/apps/details?id=com.LiveImage.JDP_Beta_LWP"
+       target="_blank" rel="noopener" aria-label="Get it on Google Play">
+      <svg viewBox="0 0 40 44" role="img" aria-hidden="true">
+        <defs>
+          <linearGradient id="gp-tri" x1="4" y1="3" x2="36" y2="41" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#00C3FF"/>
+            <stop offset=".35" stop-color="#00D95F"/>
+            <stop offset=".7" stop-color="#FFCE00"/>
+            <stop offset="1" stop-color="#FF3A44"/>
+          </linearGradient>
+        </defs>
+        <path d="M7 3.5 L7 40.5 L37 22 Z" fill="url(#gp-tri)"/>
+      </svg>
+      <span class="pb-text"><span class="pb-top">Get it on</span><span class="pb-main">Google Play</span></span>
+    </a>
+    <p class="gp-note">Rolling out on Google Play soon — this button goes live the moment the app
+      publishes.</p>
+  </section>
+
   <section id="faq">
     <p class="kicker display">Answers</p>
     <h2 class="display">Frequently asked questions</h2>
@@ -581,9 +624,19 @@
       <div class="btn-row">
         <a class="btn btn-solid" href="mailto:support@3dgaze.com">support@3dgaze.com</a>
       </div>
-      <div class="tip"><b>Tip:</b> the fastest route is the <b>EMAIL&nbsp;SUPPORT</b> button inside the
-      app (Settings → MORE tab). It pre-fills your app version and device details, so we can skip the
-      back-and-forth and get straight to fixing.</div>
+      <div class="tip"><b>Fastest route:</b> the <b>EMAIL&nbsp;SUPPORT</b> button inside the app
+      (Settings → MORE tab). It attaches your app version and device details automatically, so everything
+      below is already filled in for you.</div>
+
+      <p class="support-ask-lead">Emailing us directly instead? Please include these — it lets us fix it on
+      the first reply, without a round of "what phone / which version?":</p>
+      <ul class="support-ask">
+        <li>Your <b>phone model</b> and <b>Android version</b> (Settings → About phone)</li>
+        <li>The <b>wallpaper name</b> and its <b>version number</b> (shown at the bottom of the app's Settings)</li>
+        <li><b>What happened</b>, and what you expected to happen instead</li>
+        <li><b>Steps to reproduce</b> it, if you can — and whether it happens every time</li>
+        <li>A <b>screenshot or short screen recording</b>, if it's something you can see</li>
+      </ul>
     </div>
   </section>
 
