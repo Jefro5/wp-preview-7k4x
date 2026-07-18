@@ -99,6 +99,22 @@
       var(--bg);
   }
   #stars { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  /* Ambient wash: a blurry, half-transparent echo of the active phone screen, spanning the text->phone
+     band and fading into the starfield on both sides. Cross-fades with the carousel; sits behind the stars. */
+  .hero-bg {
+    position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: min(1180px, 98vw); pointer-events: none; overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent);
+  }
+  .hbg {
+    position: absolute; inset: -10%; opacity: 0; transition: opacity 0.7s ease;
+    filter: blur(52px) saturate(1.15); border-radius: 44px;
+  }
+  .hbg.active { opacity: 0.4; }
+  .hbg.b0 { background: linear-gradient(165deg, #7db6e8, #cfe6f6 55%, #8fcf7a); }
+  .hbg.b1 { background: linear-gradient(165deg, #f2ad6c, #b5567a 58%, #35284d); }
+  .hbg.b2 { background: linear-gradient(180deg, #0b1830, #143056 55%, #1d3c2b); }
   .hero-inner { position: relative; max-width: 860px; margin: 0 auto; }
   .eyebrow {
     color: var(--accent); font-size: 0.78rem; font-weight: 600;
@@ -121,7 +137,7 @@
   .btn-ghost { color: var(--text); border: 1px solid var(--panel-edge); background: color-mix(in srgb, var(--panel) 55%, transparent); }
 
   /* ---------- hero phone carousel ---------- */
-  .hero-inner { max-width: 1080px; }
+  .hero-inner { max-width: 1080px; position: relative; z-index: 2; }
   @media (min-width: 860px) {
     .hero-inner { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: clamp(30px, 5vw, 60px); align-items: center; }
   }
@@ -327,6 +343,11 @@
 </nav>
 
 <header id="top">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="hbg b0"></div>
+    <div class="hbg b1"></div>
+    <div class="hbg b2"></div>
+  </div>
   <canvas id="stars" aria-hidden="true"></canvas>
   <div class="hero-inner">
     <div class="hero-copy">
@@ -841,6 +862,7 @@
     var track = root.querySelector(".carousel-track");
     var slides = Array.prototype.slice.call(root.querySelectorAll(".carousel-slide"));
     var dotsWrap = root.querySelector(".carousel-dots");
+    var bgs = Array.prototype.slice.call(document.querySelectorAll(".hero-bg .hbg"));
     var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     var n = slides.length, i = 0, timer = null, pendingDir = 1, armed = false;
 
@@ -886,6 +908,7 @@
     function render() {
       track.style.transform = "translateX(" + (-i * 100) + "%)";
       dots.forEach(function (d, idx) { d.setAttribute("aria-selected", idx === i ? "true" : "false"); });
+      bgs.forEach(function (b, idx) { b.classList.toggle("active", idx === i); });
       playActive();
     }
     function go(idx, user) {
