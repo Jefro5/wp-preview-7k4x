@@ -125,8 +125,9 @@
   @media (min-width: 860px) {
     .hero-inner { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: clamp(30px, 5vw, 60px); align-items: center; }
   }
-  .carousel { position: relative; width: 100%; }
-  .carousel-viewport { overflow: hidden; }
+  .carousel { position: relative; width: 100%; -webkit-user-select: none; user-select: none; }
+  .carousel-viewport { overflow: hidden; cursor: grab; touch-action: pan-y; }
+  .carousel-viewport.dragging { cursor: grabbing; }
   .carousel-track { display: flex; transition: transform 0.55s cubic-bezier(.4, 0, .2, 1); }
   .carousel-slide { flex: 0 0 100%; display: flex; justify-content: center; padding: 6px 0; }
   .phone {
@@ -142,7 +143,7 @@
     width: 100%; height: 100%; border-radius: 26px; overflow: hidden; position: relative;
     background: linear-gradient(165deg, #7db6e8, #cfe6f6 55%, #8fcf7a);
   }
-  .phone-screen video, .phone-screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .phone-screen video, .phone-screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
   .carousel-slide:nth-child(2) .phone-screen { background: linear-gradient(165deg, #f2ad6c, #b5567a 58%, #35284d); }
   .carousel-slide:nth-child(3) .phone-screen { background: linear-gradient(180deg, #0b1830, #143056 55%, #1d3c2b); }
   .carousel-dots { display: flex; gap: 9px; justify-content: center; margin-top: 22px; }
@@ -152,7 +153,23 @@
   }
   .carousel-dots button[aria-selected="true"] { background: var(--accent); transform: scale(1.25); }
   .carousel-dots button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  @media (prefers-reduced-motion: reduce) { .carousel-track { transition: none; } }
+  /* Fake perspective on wider screens: tilt the phone back and turned to the right; ease toward
+     straight on hover/drag so it reacts to the user. */
+  @media (min-width: 860px) {
+    .phone {
+      transform: perspective(1500px) rotateX(5deg) rotateY(16deg) rotateZ(-1deg);
+      transform-origin: 55% 50%;
+      box-shadow: 20px 34px 64px rgba(0, 0, 0, .55), inset 0 0 0 2px #2a3346;
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
+      will-change: transform;
+    }
+    .carousel:hover .phone, .carousel:focus-within .phone {
+      transform: perspective(1500px) rotateX(3deg) rotateY(9deg) rotateZ(-0.5deg);
+      box-shadow: 14px 26px 54px rgba(0, 0, 0, .5), inset 0 0 0 2px #2a3346;
+    }
+    .carousel-viewport.dragging .phone { transition: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .carousel-track, .phone { transition: none; } }
 
   /* ---------- sections ---------- */
   main { max-width: 860px; margin: 0 auto; padding: 0 clamp(18px, 5vw, 48px) 40px; }
@@ -846,14 +863,31 @@
     root.addEventListener("focusout", restart);
     document.addEventListener("visibilitychange", function () { document.hidden ? stop() : restart(); });
 
-    var x0 = null;
-    root.addEventListener("touchstart", function (e) { x0 = e.touches[0].clientX; }, { passive: true });
-    root.addEventListener("touchend", function (e) {
-      if (x0 === null) return;
-      var dx = e.changedTouches[0].clientX - x0;
-      if (Math.abs(dx) > 40) go(i + (dx < 0 ? 1 : -1), true);
-      x0 = null;
-    }, { passive: true });
+    // Pointer drag (mouse AND touch): the track follows the drag, then snaps to the nearest slide.
+    var vp = root.querySelector(".carousel-viewport");
+    var down = false, sx = 0, dx = 0;
+    vp.addEventListener("pointerdown", function (e) {
+      down = true; sx = e.clientX; dx = 0;
+      track.style.transition = "none"; vp.classList.add("dragging"); stop();
+      if (vp.setPointerCapture) { try { vp.setPointerCapture(e.pointerId); } catch (err) {} }
+    });
+    vp.addEventListener("pointermove", function (e) {
+      if (!down) return;
+      dx = e.clientX - sx;
+      track.style.transform = "translateX(" + (-i * 100) + "%) translateX(" + dx + "px)";
+    });
+    function endDrag() {
+      if (!down) return;
+      down = false; vp.classList.remove("dragging"); track.style.transition = "";
+      var th = Math.min(80, vp.clientWidth * 0.18);
+      if (dx <= -th) go(i + 1, true);
+      else if (dx >= th) go(i - 1, true);
+      else render();
+      restart(); dx = 0;
+    }
+    vp.addEventListener("pointerup", endDrag);
+    vp.addEventListener("pointercancel", endDrag);
+    vp.addEventListener("pointerleave", endDrag);
 
     render(); restart();
   })();
