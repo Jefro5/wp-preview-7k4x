@@ -255,14 +255,18 @@
     color: var(--muted); font-size: 0.92rem;
   }
   .tip b { color: var(--text); }
-  .support-ask-lead { color: var(--text); margin: 26px 0 14px; }
-  .support-ask { margin: 0; padding: 0; list-style: none; display: grid; gap: 11px; }
-  .support-ask li { position: relative; padding-left: 24px; color: var(--muted); line-height: 1.55; }
-  .support-ask li::before {
-    content: ""; position: absolute; left: 4px; top: 0.62em;
-    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  .support-ask-lead { color: var(--text); margin: 26px 0 16px; }
+  .support-ask { margin: 0; display: grid; }
+  .support-ask > div {
+    display: grid; grid-template-columns: minmax(150px, 36%) 1fr; gap: 6px 22px;
+    padding: 11px 2px; border-top: 1px solid var(--panel-edge);
   }
-  .support-ask li b { color: var(--text); font-weight: 600; }
+  .support-ask > div:last-child { border-bottom: 1px solid var(--panel-edge); }
+  .support-ask dt { color: var(--text); font-weight: 600; }
+  .support-ask dd { margin: 0; color: var(--muted); line-height: 1.5; }
+  @media (max-width: 560px) {
+    .support-ask > div { grid-template-columns: 1fr; gap: 2px; padding: 10px 2px; }
+  }
 
   /* ---------- FAQ search ---------- */
   .faq-search { position: relative; margin: 0 0 22px; }
@@ -754,13 +758,13 @@
 
       <p class="support-ask-lead">Emailing us directly instead? Please include these — it lets us fix it on
       the first reply, without a round of "what phone / which version?":</p>
-      <ul class="support-ask">
-        <li>Your <b>phone model</b> and <b>Android version</b> (Settings → About phone)</li>
-        <li>The <b>wallpaper name</b> and its <b>version number</b> (shown at the bottom of the app's Settings)</li>
-        <li><b>What happened</b>, and what you expected to happen instead</li>
-        <li><b>Steps to reproduce</b> it, if you can — and whether it happens every time</li>
-        <li>A <b>screenshot or short screen recording</b>, if it's something you can see</li>
-      </ul>
+      <dl class="support-ask">
+        <div><dt>Phone &amp; Android version</dt><dd>Settings → About phone</dd></div>
+        <div><dt>Wallpaper &amp; its version</dt><dd>At the bottom of the app's Settings</dd></div>
+        <div><dt>What went wrong</dt><dd>What happened, and what you expected instead</dd></div>
+        <div><dt>Steps to reproduce</dt><dd>How to trigger it — and whether it's every time</dd></div>
+        <div><dt>A screenshot or clip</dt><dd>If it's something you can see</dd></div>
+      </dl>
     </div>
   </section>
 
