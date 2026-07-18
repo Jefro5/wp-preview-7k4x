@@ -890,7 +890,7 @@
     }
     var all = Array.prototype.slice.call(track.querySelectorAll(".carousel-slide"));
     var pos = n > 1 ? 1 : 0;           // index into `all`; real slide k lives at all[k+1]
-    var pendingDir = 1, armed = false, timer = null;
+    var pendingDir = 1, armed = false, timer = null, settleTimer = null;
 
     function realIndex() { return n > 1 ? ((pos - 1) + n) % n : 0; }
 
@@ -918,6 +918,13 @@
       void p.offsetWidth;               // reflow so it can retrigger back-to-back
       p.classList.add("settling");
     }
+    // Start the settle ~200ms BEFORE the 0.55s slide finishes, so it overlaps the tail of the move
+    // and feels continuous — rather than waiting for the whole slide to end.
+    function scheduleSettle() {
+      if (reduced) return;
+      clearTimeout(settleTimer);
+      settleTimer = setTimeout(function () { if (armed) settle(pendingDir); }, 350);
+    }
 
     function setX(px) {
       track.style.transform = "translateX(" + (-pos * 100) + "%)" + (px ? " translateX(" + px + "px)" : "");
@@ -942,11 +949,10 @@
       if (n > 1 && pos === 0) { pos = n; render(false); }
       else if (n > 1 && pos === n + 1) { pos = 1; render(false); }
     }
-    // After a slide lands: normalize any clone, then fire the settle.
+    // After a slide lands: jump off any clone to its real twin (the settle is on its own timer).
     track.addEventListener("transitionend", function (e) {
       if (e.propertyName !== "transform") return;
       normalize();
-      if (armed) settle(pendingDir);
     });
 
     function go(newPos, user) {
@@ -954,6 +960,7 @@
       armed = true;
       pos = newPos;
       render(true);
+      scheduleSettle();
       if (reduced) normalize();   // transitions off -> no transitionend fires, so jump now
       if (user) restart();
     }
@@ -984,7 +991,7 @@
       var th = Math.min(80, vp.clientWidth * 0.18);
       if (n > 1 && dx <= -th) go(pos + 1, true);
       else if (n > 1 && dx >= th) go(pos - 1, true);
-      else { pendingDir = dx < 0 ? -1 : 1; armed = true; render(true); }  // snap back, still settle
+      else { pendingDir = dx < 0 ? -1 : 1; armed = true; render(true); scheduleSettle(); }  // snap back, still settle
       dx = 0; restart();
     }
     vp.addEventListener("pointerup", endDrag);
