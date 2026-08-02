@@ -181,21 +181,26 @@
      the old design rested at, and STRAIGHTENS to face the viewer as it lands beside the text — a whisper
      of overshoot so the stop feels physical. Fly-out departs left, re-tilting the opposite way, like it
      keeps traveling past the viewer. */
-  /* --rest-x: where the phone SETTLES. 9% right-of-center makes the flat phone occupy the same visual
-     slot the old tilted silhouette did (flat reads wider/more central than the -30° projection, so a
-     plain 0 landing crowded the text — Jeff, 2026-08-02). Tune this one variable to move the rest spot. */
-  .carousel-slide { --rest-x: 9%; }
+  /* The journey (Jeff's direction, take 2 — 2026-08-02): the phone STARTS exactly where the original
+     design rested (its layout slot on the far right, at the original tilt/perspective), then TRAVELS
+     LEFT toward the center of the hero near the text, straightening to a fully frontal pose as it
+     arrives. --rest-x = how far left it lands (more negative = closer to the text). Departing phones
+     continue left and fade, keeping one consistent direction of motion. */
+  .carousel-slide { --rest-x: -65%; }
+  @media (max-width: 859px) {
+    .carousel-slide { --rest-x: 0%; }   /* single-column layout: straighten in place, no leftward trek */
+  }
   @keyframes phoneFlyIn {
-    0%   { transform: translateX(80%) perspective(880px) rotateX(7deg) rotateY(-30deg) rotateZ(6deg); opacity: 0; }
-    8%   { opacity: 1; }
-    80%  { transform: translateX(calc(var(--rest-x) - 1.4%)) perspective(880px) rotateX(-1deg) rotateY(3.5deg) rotateZ(-0.7deg); }
+    0%   { transform: translateX(0) perspective(880px) rotateX(7deg) rotateY(-30deg) rotateZ(6deg); opacity: 0; }
+    8%   { transform: translateX(0) perspective(880px) rotateX(7deg) rotateY(-30deg) rotateZ(6deg); opacity: 1; }
+    82%  { transform: translateX(calc(var(--rest-x) - 1.4%)) perspective(880px) rotateX(-1deg) rotateY(3deg) rotateZ(-0.6deg); }
     100% { transform: translateX(var(--rest-x)) perspective(880px) rotateX(0) rotateY(0) rotateZ(0); opacity: 1; }
   }
   @keyframes phoneFlyOut {
     0%   { transform: translateX(var(--rest-x)) perspective(880px) rotateX(0) rotateY(0) rotateZ(0); opacity: 1; }
-    100% { transform: translateX(-70%) perspective(880px) rotateX(4deg) rotateY(24deg) rotateZ(-5deg); opacity: 0; }
+    100% { transform: translateX(calc(var(--rest-x) - 45%)) perspective(880px) rotateX(4deg) rotateY(18deg) rotateZ(-4deg); opacity: 0; }
   }
-  .carousel-slide.active .phone-tilt { animation: phoneFlyIn 0.85s cubic-bezier(.22, .85, .3, 1) both; }
+  .carousel-slide.active .phone-tilt { animation: phoneFlyIn 1.05s cubic-bezier(.25, .8, .3, 1) both; }
   .carousel-slide.leaving .phone-tilt { animation: phoneFlyOut 0.5s cubic-bezier(.5, 0, .8, .4) both; }
 
   @media (prefers-reduced-motion: reduce) {
