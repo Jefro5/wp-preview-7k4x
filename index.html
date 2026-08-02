@@ -144,7 +144,7 @@
   .carousel { position: relative; width: 100%; -webkit-user-select: none; user-select: none; }
   /* Vertical padding gives the tilted/leaning phone room so overflow:hidden (needed to clip the side
      slides horizontally) doesn't cut off its bottom corner. */
-  .carousel-viewport { overflow: hidden; cursor: grab; touch-action: pan-y; padding: 70px 4px; }
+  .carousel-viewport { overflow: visible; cursor: grab; touch-action: pan-y; padding: 70px 4px; }
   .carousel-viewport.dragging { cursor: grabbing; }
   .carousel-track { display: grid; }
   .carousel-slide {
@@ -186,13 +186,15 @@
      LEFT toward the center of the hero near the text, straightening to a fully frontal pose as it
      arrives. --rest-x = how far left it lands (more negative = closer to the text). Departing phones
      continue left and fade, keeping one consistent direction of motion. */
-  .carousel-slide { --rest-x: -65%; }
+  /* --start-x: where the phone APPEARS (offset right of its column center — bigger = closer to the
+     screen's right edge). --rest-x: where it LANDS (negative = left toward the text). */
+  .carousel-slide { --start-x: 55%; --rest-x: -65%; }
   @media (max-width: 859px) {
-    .carousel-slide { --rest-x: 0%; }   /* single-column layout: straighten in place, no leftward trek */
+    .carousel-slide { --start-x: 0%; --rest-x: 0%; }   /* single-column: straighten in place */
   }
   @keyframes phoneFlyIn {
-    0%   { transform: translateX(0) perspective(880px) rotateX(7deg) rotateY(-30deg) rotateZ(6deg); opacity: 0; }
-    8%   { transform: translateX(0) perspective(880px) rotateX(7deg) rotateY(-30deg) rotateZ(6deg); opacity: 1; }
+    0%   { transform: translateX(var(--start-x)) perspective(880px) rotateX(7deg) rotateY(-30deg) rotateZ(6deg); opacity: 0; }
+    8%   { transform: translateX(var(--start-x)) perspective(880px) rotateX(7deg) rotateY(-30deg) rotateZ(6deg); opacity: 1; }
     82%  { transform: translateX(calc(var(--rest-x) - 1.4%)) perspective(880px) rotateX(-1deg) rotateY(3deg) rotateZ(-0.6deg); }
     100% { transform: translateX(var(--rest-x)) perspective(880px) rotateX(0) rotateY(0) rotateZ(0); opacity: 1; }
   }
