@@ -146,9 +146,14 @@
      slides horizontally) doesn't cut off its bottom corner. */
   .carousel-viewport { overflow: hidden; cursor: grab; touch-action: pan-y; padding: 70px 4px; }
   .carousel-viewport.dragging { cursor: grabbing; }
-  .carousel-track { display: flex; transition: transform 0.55s cubic-bezier(.4, 0, .2, 1); }
-  .carousel-slide { flex: 0 0 100%; display: flex; justify-content: center; padding: 6px 0; }
-  .phone-tilt { display: inline-block; }
+  .carousel-track { display: grid; }
+  .carousel-slide {
+    grid-area: 1 / 1; display: flex; justify-content: center; padding: 6px 0;
+    opacity: 0; pointer-events: none;
+  }
+  .carousel-slide.active, .carousel-slide.leaving { opacity: 1; }
+  .carousel-slide.active { pointer-events: auto; }
+  .phone-tilt { display: inline-block; will-change: transform, opacity; }
   .phone {
     position: relative; width: min(240px, 60vw); aspect-ratio: 9 / 19.3;
     background: #0a0d14; border-radius: 34px; padding: 9px;
@@ -172,33 +177,25 @@
   }
   .carousel-dots button[aria-selected="true"] { background: var(--accent); transform: scale(1.25); }
   .carousel-dots button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  /* Fake perspective on wider screens: tilt the phone back and FACE it toward the text (screen turned
-     left, since the copy sits on the left). Lives on a wrapper so the settle wobble below is free to use
-     the phone's own transform. Tighter perspective() = more dramatic FOV. */
-  @media (min-width: 860px) {
-    .phone-tilt {
-      transform: perspective(880px) rotateX(7deg) rotateY(-30deg) rotateZ(6deg);
-      transform-origin: 50% 50%;
-      will-change: transform;
-    }
-    /* Keep the phone at a constant tilt — no straightening on hover or while dragging. */
-    .phone { box-shadow: -16px 18px 40px rgba(0, 0, 0, .5), inset 0 0 0 2px #2a3346; }
+  /* Fly-in (Jeff's direction, 2026-08-02): each phone ENTERS from the right at the tilted perspective
+     the old design rested at, and STRAIGHTENS to face the viewer as it lands beside the text — a whisper
+     of overshoot so the stop feels physical. Fly-out departs left, re-tilting the opposite way, like it
+     keeps traveling past the viewer. */
+  @keyframes phoneFlyIn {
+    0%   { transform: translateX(85%) perspective(880px) rotateX(7deg) rotateY(-30deg) rotateZ(6deg); opacity: 0; }
+    20%  { opacity: 1; }
+    80%  { transform: translateX(-1.6%) perspective(880px) rotateX(-1deg) rotateY(3.5deg) rotateZ(-0.7deg); }
+    100% { transform: translateX(0) perspective(880px) rotateX(0) rotateY(0) rotateZ(0); opacity: 1; }
   }
-
-  /* Inertia settle: when a slide lands (drag-snap or auto-advance) the phone leans in the travel
-     direction, then damps back to rest. --dir (+1/-1) is set per direction by the carousel JS. */
-  @keyframes phoneSettle {
-    0%   { transform: translateX(calc(var(--dir, 1) * 7px))   rotateZ(calc(var(--dir, 1) * 1.2deg)); }
-    30%  { transform: translateX(calc(var(--dir, 1) * -3px))  rotateZ(calc(var(--dir, 1) * -0.55deg)); }
-    55%  { transform: translateX(calc(var(--dir, 1) * 1.3px)) rotateZ(calc(var(--dir, 1) * 0.24deg)); }
-    78%  { transform: translateX(calc(var(--dir, 1) * -0.6px)) rotateZ(calc(var(--dir, 1) * -0.1deg)); }
-    100% { transform: translateX(0) rotateZ(0); }
+  @keyframes phoneFlyOut {
+    0%   { transform: translateX(0) perspective(880px) rotateX(0) rotateY(0) rotateZ(0); opacity: 1; }
+    100% { transform: translateX(-75%) perspective(880px) rotateX(4deg) rotateY(24deg) rotateZ(-5deg); opacity: 0; }
   }
-  .phone.settling { animation: phoneSettle 0.36s cubic-bezier(.2, .7, .3, 1) both; }
+  .carousel-slide.active .phone-tilt { animation: phoneFlyIn 0.85s cubic-bezier(.22, .85, .3, 1) both; }
+  .carousel-slide.leaving .phone-tilt { animation: phoneFlyOut 0.5s cubic-bezier(.5, 0, .8, .4) both; }
 
   @media (prefers-reduced-motion: reduce) {
-    .carousel-track, .phone-tilt { transition: none; }
-    .phone.settling { animation: none; }
+    .carousel-slide .phone-tilt { animation: none !important; }
   }
 
   /* ---------- sections ---------- */
@@ -865,106 +862,56 @@
 </script>
 
 <script>
-  // Hero phone carousel: seamless infinite loop (clones on both ends), auto-advance, dots, drag.
+  // Hero phone carousel (fly-in edition): each phone enters from the RIGHT at a tilted perspective and
+  // straightens to face the viewer as it lands beside the text; the outgoing phone departs left. One
+  // slide is visible at a time (slides are stacked); auto-advance, dots, and swipe-to-advance remain.
   (function () {
     var root = document.getElementById("hero-carousel");
     if (!root) return;
-    var track = root.querySelector(".carousel-track");
     var vp = root.querySelector(".carousel-viewport");
     var dotsWrap = root.querySelector(".carousel-dots");
     var bgs = Array.prototype.slice.call(document.querySelectorAll(".hero-bg .hbg"));
     var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var TRANS = reduced ? "none" : "transform 0.55s cubic-bezier(.4, 0, .2, 1)";
+    var slides = Array.prototype.slice.call(root.querySelectorAll(".carousel-slide"));
+    var n = slides.length, cur = 0, timer = null, leaveTimer = null;
 
-    var real = Array.prototype.slice.call(root.querySelectorAll(".carousel-slide"));
-    var n = real.length;
-
-    // Clone last -> front and first -> back, so last->first (and first->last) is ONE seamless step
-    // instead of a long reverse scroll; after landing on a clone we jump instantly to its real twin.
-    if (n > 1) {
-      var lastClone = real[n - 1].cloneNode(true);
-      var firstClone = real[0].cloneNode(true);
-      [lastClone, firstClone].forEach(function (c) { c.classList.add("clone"); c.setAttribute("aria-hidden", "true"); });
-      track.insertBefore(lastClone, real[0]);
-      track.appendChild(firstClone);
-    }
-    var all = Array.prototype.slice.call(track.querySelectorAll(".carousel-slide"));
-    var pos = n > 1 ? 1 : 0;           // index into `all`; real slide k lives at all[k+1]
-    var pendingDir = 1, armed = false, timer = null, settleTimer = null;
-
-    function realIndex() { return n > 1 ? ((pos - 1) + n) % n : 0; }
-
-    var dots = real.map(function (_, idx) {
+    var dots = slides.map(function (_, idx) {
       var b = document.createElement("button");
       b.setAttribute("role", "tab");
       b.setAttribute("aria-label", "Preview " + (idx + 1));
-      b.addEventListener("click", function () { go(idx + (n > 1 ? 1 : 0), true); });
+      b.addEventListener("click", function () { show(idx, true); });
       dotsWrap.appendChild(b);
       return b;
     });
 
-    all.forEach(function (s) {
-      var p = s.querySelector(".phone");
-      if (p) p.addEventListener("animationend", function () { p.classList.remove("settling"); });
-    });
-
-    // Inertia settle on the landing phone. dir = travel direction (next moves left -> -1; prev -> +1).
-    function settle(dir) {
-      if (reduced) return;
-      var p = all[pos] && all[pos].querySelector(".phone");
-      if (!p) return;
-      p.style.setProperty("--dir", dir);
-      p.classList.remove("settling");
-      void p.offsetWidth;               // reflow so it can retrigger back-to-back
-      p.classList.add("settling");
-    }
-    // Start the settle ~100ms BEFORE the 0.55s slide finishes, so it overlaps the tail of the move
-    // and feels continuous — rather than waiting for the whole slide to end.
-    function scheduleSettle() {
-      if (reduced) return;
-      clearTimeout(settleTimer);
-      settleTimer = setTimeout(function () { if (armed) settle(pendingDir); }, 450);
-    }
-
-    function setX(px) {
-      track.style.transform = "translateX(" + (-pos * 100) + "%)" + (px ? " translateX(" + px + "px)" : "");
-    }
     function paint() {
-      var ri = realIndex();
-      dots.forEach(function (d, idx) { d.setAttribute("aria-selected", idx === ri ? "true" : "false"); });
-      bgs.forEach(function (b, idx) { b.classList.toggle("active", idx === ri); });
-      all.forEach(function (s, idx) {
+      dots.forEach(function (d, idx) { d.setAttribute("aria-selected", idx === cur ? "true" : "false"); });
+      bgs.forEach(function (b, idx) { b.classList.toggle("active", idx === cur); });
+      slides.forEach(function (s, idx) {
         var v = s.querySelector("video"); if (!v) return;
-        try { if (idx === pos) v.play().catch(function () {}); else v.pause(); } catch (e) {}
+        try { if (idx === cur) v.play().catch(function () {}); else v.pause(); } catch (e) {}
       });
     }
-    function render(withTrans) {
-      track.style.transition = withTrans ? TRANS : "none";
-      setX(0);
+
+    function show(next, user) {
+      next = ((next % n) + n) % n;
+      if (next === cur) { if (user) restart(); return; }
+      var old = slides[cur];
+      old.classList.remove("active");
+      if (!reduced) {
+        old.classList.add("leaving");            // plays the fly-out, then the class is cleared
+        clearTimeout(leaveTimer);
+        leaveTimer = setTimeout(function () {
+          slides.forEach(function (sl) { sl.classList.remove("leaving"); });
+        }, 550);
+      }
+      cur = next;
+      slides[cur].classList.add("active");       // plays the fly-in
       paint();
-    }
-
-    // If we've landed on a clone, jump instantly to its real twin.
-    function normalize() {
-      if (n > 1 && pos === 0) { pos = n; render(false); }
-      else if (n > 1 && pos === n + 1) { pos = 1; render(false); }
-    }
-    // After a slide lands: jump off any clone to its real twin (the settle is on its own timer).
-    track.addEventListener("transitionend", function (e) {
-      if (e.propertyName !== "transform") return;
-      normalize();
-    });
-
-    function go(newPos, user) {
-      pendingDir = newPos > pos ? -1 : 1;
-      armed = true;
-      pos = newPos;
-      render(true);
-      scheduleSettle();
-      if (reduced) normalize();   // transitions off -> no transitionend fires, so jump now
       if (user) restart();
     }
-    function restart() { stop(); if (!reduced && n > 1) timer = setInterval(function () { go(pos + 1); }, 4500); }
+
+    function restart() { stop(); if (!reduced && n > 1) timer = setInterval(function () { show(cur + 1); }, 4500); }
     function stop() { if (timer) { clearInterval(timer); timer = null; } }
 
     root.addEventListener("mouseenter", stop);
@@ -973,32 +920,26 @@
     root.addEventListener("focusout", restart);
     document.addEventListener("visibilitychange", function () { document.hidden ? stop() : restart(); });
 
-    // Pointer drag (mouse AND touch): the track follows the drag, then advances/snaps.
+    // Swipe / drag: a horizontal flick advances (left = next, right = previous). The phones no longer
+    // track the finger 1:1 — the fly animation owns the motion — so a flick is a discrete advance.
     var down = false, sx = 0, dx = 0;
-    vp.addEventListener("pointerdown", function (e) {
-      down = true; sx = e.clientX; dx = 0;
-      track.style.transition = "none"; vp.classList.add("dragging"); stop();
-      if (vp.setPointerCapture) { try { vp.setPointerCapture(e.pointerId); } catch (err) {} }
-    });
-    vp.addEventListener("pointermove", function (e) {
-      if (!down) return;
-      dx = e.clientX - sx;
-      setX(dx);
-    });
+    vp.addEventListener("pointerdown", function (e) { down = true; sx = e.clientX; dx = 0; stop(); });
+    vp.addEventListener("pointermove", function (e) { if (down) dx = e.clientX - sx; });
     function endDrag() {
       if (!down) return;
-      down = false; vp.classList.remove("dragging");
+      down = false;
       var th = Math.min(80, vp.clientWidth * 0.18);
-      if (n > 1 && dx <= -th) go(pos + 1, true);
-      else if (n > 1 && dx >= th) go(pos - 1, true);
-      else { pendingDir = dx < 0 ? -1 : 1; armed = true; render(true); scheduleSettle(); }  // snap back, still settle
-      dx = 0; restart();
+      if (n > 1 && dx <= -th) show(cur + 1, true);
+      else if (n > 1 && dx >= th) show(cur - 1, true);
+      else restart();
+      dx = 0;
     }
     vp.addEventListener("pointerup", endDrag);
     vp.addEventListener("pointercancel", endDrag);
     vp.addEventListener("pointerleave", endDrag);
 
-    render(false);
+    slides[0].classList.add("active");           // first phone flies in on page load
+    paint();
     restart();
   })();
 </script>
