@@ -181,15 +181,19 @@
      the old design rested at, and STRAIGHTENS to face the viewer as it lands beside the text — a whisper
      of overshoot so the stop feels physical. Fly-out departs left, re-tilting the opposite way, like it
      keeps traveling past the viewer. */
+  /* --rest-x: where the phone SETTLES. 9% right-of-center makes the flat phone occupy the same visual
+     slot the old tilted silhouette did (flat reads wider/more central than the -30° projection, so a
+     plain 0 landing crowded the text — Jeff, 2026-08-02). Tune this one variable to move the rest spot. */
+  .carousel-slide { --rest-x: 9%; }
   @keyframes phoneFlyIn {
-    0%   { transform: translateX(85%) perspective(880px) rotateX(7deg) rotateY(-30deg) rotateZ(6deg); opacity: 0; }
-    20%  { opacity: 1; }
-    80%  { transform: translateX(-1.6%) perspective(880px) rotateX(-1deg) rotateY(3.5deg) rotateZ(-0.7deg); }
-    100% { transform: translateX(0) perspective(880px) rotateX(0) rotateY(0) rotateZ(0); opacity: 1; }
+    0%   { transform: translateX(80%) perspective(880px) rotateX(7deg) rotateY(-30deg) rotateZ(6deg); opacity: 0; }
+    8%   { opacity: 1; }
+    80%  { transform: translateX(calc(var(--rest-x) - 1.4%)) perspective(880px) rotateX(-1deg) rotateY(3.5deg) rotateZ(-0.7deg); }
+    100% { transform: translateX(var(--rest-x)) perspective(880px) rotateX(0) rotateY(0) rotateZ(0); opacity: 1; }
   }
   @keyframes phoneFlyOut {
-    0%   { transform: translateX(0) perspective(880px) rotateX(0) rotateY(0) rotateZ(0); opacity: 1; }
-    100% { transform: translateX(-75%) perspective(880px) rotateX(4deg) rotateY(24deg) rotateZ(-5deg); opacity: 0; }
+    0%   { transform: translateX(var(--rest-x)) perspective(880px) rotateX(0) rotateY(0) rotateZ(0); opacity: 1; }
+    100% { transform: translateX(-70%) perspective(880px) rotateX(4deg) rotateY(24deg) rotateZ(-5deg); opacity: 0; }
   }
   .carousel-slide.active .phone-tilt { animation: phoneFlyIn 0.85s cubic-bezier(.22, .85, .3, 1) both; }
   .carousel-slide.leaving .phone-tilt { animation: phoneFlyOut 0.5s cubic-bezier(.5, 0, .8, .4) both; }
