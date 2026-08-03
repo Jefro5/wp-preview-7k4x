@@ -893,7 +893,15 @@
     var bgs = Array.prototype.slice.call(document.querySelectorAll(".hero-bg .hbg"));
     var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     var slides = Array.prototype.slice.call(root.querySelectorAll(".carousel-slide"));
-    var n = slides.length, cur = 0, timer = null, leaveTimer = null;
+    var n = slides.length, cur = 0, leaveTimer = null;
+
+    // Auto-advance is a single always-running watchdog that CHECKS conditions each tick, never a
+    // timer that gets stopped and restarted by paired events. The old start/stop version could be
+    // killed forever by one missed "resume": on touch, a tap fires the browser's COMPATIBILITY
+    // mouseenter AFTER pointerup — so stop() ran after the restart, and mouseleave never comes on
+    // a touch screen (= the rotation died until the user tapped elsewhere on the page).
+    var canHover = matchMedia("(hover: hover)").matches;  // touch "hover" is sticky after a tap — ignore it there
+    var lastInteraction = 0;
 
     var dots = slides.map(function (_, idx) {
       var b = document.createElement("button");
@@ -914,8 +922,9 @@
     }
 
     function show(next, user) {
+      if (user) lastInteraction = Date.now();
       next = ((next % n) + n) % n;
-      if (next === cur) { if (user) restart(); return; }
+      if (next === cur) return;
       var old = slides[cur];
       old.classList.remove("active");
       if (!reduced) {
@@ -928,30 +937,31 @@
       cur = next;
       slides[cur].classList.add("active");       // plays the fly-in
       paint();
-      if (user) restart();
     }
 
-    function restart() { stop(); if (!reduced && n > 1) timer = setInterval(function () { show(cur + 1); }, 4500); }
-    function stop() { if (timer) { clearInterval(timer); timer = null; } }
-
-    root.addEventListener("mouseenter", stop);
-    root.addEventListener("mouseleave", restart);
-    root.addEventListener("focusin", stop);
-    root.addEventListener("focusout", restart);
-    document.addEventListener("visibilitychange", function () { document.hidden ? stop() : restart(); });
+    // The watchdog: every condition is queried LIVE at tick time, so a missed event can delay one
+    // cycle at most — it can never permanently kill the rotation.
+    setInterval(function () {
+      if (reduced || n < 2) return;
+      if (document.hidden) return;                                   // tab in background
+      if (canHover && root.matches(":hover")) return;                // desktop: reading/watching — hold
+      if (root.contains(document.activeElement)) return;             // keyboard focus on a dot — hold
+      if (Date.now() - lastInteraction < 4500) return;               // just tapped/dragged — settle first
+      show(cur + 1);
+    }, 4500);
 
     // Swipe / drag: a horizontal flick advances (left = next, right = previous). The phones no longer
     // track the finger 1:1 — the fly animation owns the motion — so a flick is a discrete advance.
     var down = false, sx = 0, dx = 0;
-    vp.addEventListener("pointerdown", function (e) { down = true; sx = e.clientX; dx = 0; stop(); });
+    vp.addEventListener("pointerdown", function (e) { down = true; sx = e.clientX; dx = 0; lastInteraction = Date.now(); });
     vp.addEventListener("pointermove", function (e) { if (down) dx = e.clientX - sx; });
     function endDrag() {
       if (!down) return;
       down = false;
+      lastInteraction = Date.now();
       var th = Math.min(80, vp.clientWidth * 0.18);
       if (n > 1 && dx <= -th) show(cur + 1, true);
       else if (n > 1 && dx >= th) show(cur - 1, true);
-      else restart();
       dx = 0;
     }
     vp.addEventListener("pointerup", endDrag);
@@ -960,7 +970,6 @@
 
     slides[0].classList.add("active");           // first phone flies in on page load
     paint();
-    restart();
   })();
 </script>
 
