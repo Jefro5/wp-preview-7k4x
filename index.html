@@ -66,6 +66,15 @@
   }
   .display { font-family: "Avenir Next", "Segoe UI Variable Display", Futura, "Century Gothic", "Segoe UI", sans-serif; }
 
+  /* Brand font — self-hosted (no Google Fonts CDN ping; the privacy note means it). Single 400 weight. */
+  @font-face {
+    font-family: "Poiret One";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("assets/fonts/PoiretOne-Regular-latin.woff2") format("woff2");
+  }
+
   /* ---------- nav ---------- */
   nav {
     position: sticky; top: 0; z-index: 20;
@@ -76,11 +85,22 @@
     border-bottom: 1px solid var(--panel-edge);
   }
   .wordmark {
-    font-family: "Avenir Next", "Segoe UI Variable Display", Futura, "Century Gothic", "Segoe UI", sans-serif;
-    font-weight: 700; font-size: 1.05rem; letter-spacing: 0.34em;
+    font-family: "Poiret One", "Avenir Next", "Century Gothic", "Segoe UI", sans-serif;
+    /* Poiret One ships one weight (400) — a bold here would fake-embolden and muddy the strokes */
+    font-weight: 400; font-size: 1.45rem; letter-spacing: 0.06em;
     color: var(--text); text-decoration: none; white-space: nowrap;
+    display: flex; align-items: center; gap: 12px;
   }
-  .wordmark b { color: var(--accent); font-weight: 700; }
+  /* WS monogram beside the wordmark; at nav size the baked pill text reads as texture, the text
+     wordmark stays the legible name. Slight drop shadow lifts it off the blurred nav backdrop. */
+  .logo-mark {
+    height: 40px; width: auto; display: block;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.35));
+  }
+  /* Poiret One has no real bold; a hairline stroke in each letter's own color thickens the
+     strokes cleanly (font-weight:700 would fake-bold and smear this thin face). */
+  .wordmark span { -webkit-text-stroke: 0.6px currentColor; }
+  .wordmark b { color: var(--accent); font-weight: 400; }
   .wordmark i { font-style: normal; color: var(--amber); }
   nav .links { display: flex; gap: clamp(14px, 3vw, 30px); }
   nav .links a {
@@ -360,7 +380,7 @@
 <body>
 
 <nav>
-  <a class="wordmark" href="#top"><b>WANDER</b>SCENE<i>.</i></a>
+  <a class="wordmark" href="#top"><img class="logo-mark" src="assets/images/logo.png" alt=""><span><b>Wander</b>Scene<i>.</i></span></a>
   <div class="links">
     <a href="#download">Download</a>
     <a href="#faq">FAQ</a>
