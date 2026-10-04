@@ -1,7 +1,7 @@
 {
   "version": 1,
   "packs": [
-    { "id": "quotes", "file": "quotes.txt", "title": "Quotes", "rev": 1, "url": "https://jefro5.github.io/wp-preview-7k4x/packs/quotes.txt", "sha256": "4e59e9da45b30ec32f3743de5a004213537562ea9331581b584702a4c0655239", "bytes": 10874 },
+    { "id": "quotes", "file": "quotes.txt", "title": "Quotes", "rev": 2, "url": "https://jefro5.github.io/wp-preview-7k4x/packs/quotes.txt", "sha256": "bb839c654c0fee0e9c406788a9e8643ae726b91c13f730803de05dec4e04da05", "bytes": 10787 },
     { "id": "jokes", "file": "jokes.txt", "title": "Jokes", "rev": 1, "url": "https://jefro5.github.io/wp-preview-7k4x/packs/jokes.txt", "sha256": "a7a5b9a824013b366239013c3e4d21f3257baa72b9d1de6db790dfaf42ec8004", "bytes": 3374 },
     { "id": "bible_verses", "file": "bible_verses.txt", "title": "Bible Verses", "rev": 1, "url": "https://jefro5.github.io/wp-preview-7k4x/packs/bible_verses.txt", "sha256": "0fe585c85ad6125dc6175843f94f88f5de93234107192dacf03380267744432d", "bytes": 7307 }
   ]
