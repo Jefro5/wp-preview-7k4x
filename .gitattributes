@@ -1,0 +1,3 @@
+# Text packs are served byte-for-byte: phones check each file against the SHA-256 in packs/manifest.json,
+# so git must never convert their line endings.
+packs/** -text
