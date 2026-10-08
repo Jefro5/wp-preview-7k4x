@@ -66,13 +66,20 @@
   }
   .display { font-family: "Avenir Next", "Segoe UI Variable Display", Futura, "Century Gothic", "Segoe UI", sans-serif; }
 
-  /* Brand font — self-hosted (no Google Fonts CDN ping; the privacy note means it). Single 400 weight. */
+  /* Brand font — self-hosted (no Google Fonts CDN ping; the privacy note means it). 400 + 700 (the W/S caps). */
   @font-face {
     font-family: "Playfair Display";
     font-style: normal;
     font-weight: 400;
     font-display: swap;
     src: url("assets/fonts/PlayfairDisplay-Regular-latin.woff") format("woff");
+  }
+  @font-face {
+    font-family: "Playfair Display";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("assets/fonts/PlayfairDisplay-Bold-latin.woff") format("woff");
   }
 
   /* ---------- nav ---------- */
@@ -86,8 +93,7 @@
   }
   .wordmark {
     font-family: "Playfair Display", Georgia, "Times New Roman", serif;
-    /* Only the 400 weight is self-hosted — a bold here would fake-embolden and muddy the strokes */
-    font-weight: 400; font-size: 1.45rem; letter-spacing: 0.06em;
+    font-weight: 400; font-size: 1.45rem; letter-spacing: 0;
     color: var(--text); text-decoration: none; white-space: nowrap;
     display: flex; align-items: center; gap: 12px;
   }
@@ -98,6 +104,10 @@
     filter: drop-shadow(0 1px 3px rgba(0,0,0,0.35));
   }
   .wordmark b { color: var(--accent); font-weight: 400; }
+  /* Matches Jeff's Photoshop lockup: bold W/S caps; lowercase + dot at 83% raised so their x-height
+     centres on the caps instead of sharing the baseline */
+  .wordmark strong { font-weight: 700; }
+  .wordmark small, .wordmark i { font-size: 0.83em; vertical-align: 0.15em; }
   .wordmark i { font-style: normal; color: var(--amber); }
   nav .links { display: flex; gap: clamp(14px, 3vw, 30px); }
   nav .links a {
@@ -377,7 +387,7 @@
 <body>
 
 <nav>
-  <a class="wordmark" href="#top"><img class="logo-mark" src="assets/images/logo.png" alt=""><span><b>Wander</b>Scene<i>.</i></span></a>
+  <a class="wordmark" href="#top"><img class="logo-mark" src="assets/images/logo.png" alt=""><span><b><strong>W</strong><small>ander</small></b><strong>S</strong><small>cene</small><i>.</i></span></a>
   <div class="links">
     <a href="#download">Download</a>
     <a href="#faq">FAQ</a>
