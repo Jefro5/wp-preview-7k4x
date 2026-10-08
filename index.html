@@ -68,11 +68,11 @@
 
   /* Brand font — self-hosted (no Google Fonts CDN ping; the privacy note means it). Single 400 weight. */
   @font-face {
-    font-family: "Poiret One";
+    font-family: "Playfair Display";
     font-style: normal;
     font-weight: 400;
     font-display: swap;
-    src: url("assets/fonts/PoiretOne-Regular-latin.woff2") format("woff2");
+    src: url("assets/fonts/PlayfairDisplay-Regular-latin.woff") format("woff");
   }
 
   /* ---------- nav ---------- */
@@ -85,8 +85,8 @@
     border-bottom: 1px solid var(--panel-edge);
   }
   .wordmark {
-    font-family: "Poiret One", "Avenir Next", "Century Gothic", "Segoe UI", sans-serif;
-    /* Poiret One ships one weight (400) — a bold here would fake-embolden and muddy the strokes */
+    font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+    /* Only the 400 weight is self-hosted — a bold here would fake-embolden and muddy the strokes */
     font-weight: 400; font-size: 1.45rem; letter-spacing: 0.06em;
     color: var(--text); text-decoration: none; white-space: nowrap;
     display: flex; align-items: center; gap: 12px;
